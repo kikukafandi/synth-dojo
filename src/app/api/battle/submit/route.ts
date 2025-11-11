@@ -2,7 +2,7 @@
 // Evaluates user code and AI performance, determines winner
 
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/../../auth";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { evaluateCode, generateAIScore } from "@/lib/evaluator";
 import { calculateMatchScore, updateHP } from "@/lib/utils";

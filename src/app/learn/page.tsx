@@ -1,7 +1,7 @@
 // Learn Page - List all learning modules
 // Shows available modules and user progress
 
-import { auth } from "@/../../auth";
+import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/Navbar";
@@ -60,7 +60,7 @@ export default async function LearnPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {modules.map((module) => {
+          {modules.map((module: any) => {
             const userProgress = module.progress[0];
             const progressPercent = userProgress?.progress || 0;
             const isCompleted = userProgress?.isCompleted || false;

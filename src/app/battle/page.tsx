@@ -1,7 +1,7 @@
 // AI Battle Page
 // Challenge AI opponents in coding battles
 
-import { auth } from "@/../../auth";
+import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/Navbar";

@@ -1,6 +1,6 @@
 // Module Details Page - Shows lessons in a module
 
-import { auth } from "@/../../auth";
+import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/Navbar";

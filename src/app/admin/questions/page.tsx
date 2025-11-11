@@ -1,7 +1,7 @@
 // Admin Questions Management
 // CRUD interface for practice questions
 
-import { auth } from "@/../../auth";
+import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/Navbar";
@@ -68,7 +68,7 @@ export default async function AdminQuestionsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700">
-                {questions.map((question) => (
+                {questions.map((question: any) => (
                   <tr key={question.id} className="hover:bg-gray-700/50">
                     <td className="px-6 py-4">
                       <div>

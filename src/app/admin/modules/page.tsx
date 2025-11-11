@@ -1,7 +1,7 @@
 // Admin Modules Management
 // CRUD interface for learning modules
 
-import { auth } from "@/../../auth";
+import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/Navbar";
@@ -66,7 +66,7 @@ export default async function AdminModulesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700">
-              {modules.map((module) => (
+              {modules.map((module: any) => (
                 <tr key={module.id} className="hover:bg-gray-700/50">
                   <td className="px-6 py-4">
                     <div>
