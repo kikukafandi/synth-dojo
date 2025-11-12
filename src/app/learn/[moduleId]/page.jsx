@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 
-export default async function ModulePage({ params }: { params: { moduleId: string } }) {
+export default async function ModulePage() {
   const session = await auth();
   
   if (!session?.user?.email) {

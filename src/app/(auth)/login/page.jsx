@@ -12,7 +12,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async () => {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -36,15 +36,15 @@ export default function LoginPage() {
     }
   };
 
-  const handleOAuthSignIn = (provider: string) => {
+  const handleOAuthSignIn = () => {
     signIn(provider, { callbackUrl: "/dashboard" });
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-r bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 px-4">
       <div className="max-w-md w-full space-y-8 bg-gray-800 p-8 rounded-xl shadow-2xl border border-purple-500/30">
         <div>
-          <h2 className="mt-6 text-center text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+          <h2 className="mt-6 text-center text-4xl font-bold text-transparent bg-clip-text bg-linear-to-r bg--to-r from-purple-400 to-pink-400">
             Synth-Dojo
           </h2>
           <p className="mt-2 text-center text-sm text-gray-400">
@@ -93,7 +93,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-linear-to-r bg--to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {loading ? "Signing in..." : "Sign in"}
           </button>

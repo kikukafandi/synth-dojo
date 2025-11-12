@@ -3,39 +3,8 @@
 import { useState, useEffect } from "react";
 import CodeEditor from "./CodeEditor";
 
-interface BattleArenaProps {
-  userId: string;
-  userName: string;
-  userLevel: number;
-  mode: "ai_battle" | "pvp";
-}
 
-interface Question {
-  id: string;
-  title: string;
-  prompt: string;
-  starterCode: string | null;
-  difficulty: number;
-  points: number;
-}
-
-interface BattleResult {
-  winner: "user" | "ai" | "opponent" | null;
-  userScore: number;
-  opponentScore: number;
-  userResult?: {
-    correct: boolean;
-    runtimeMs: number;
-    styleScore: number;
-  };
-  aiResult?: {
-    correct: boolean;
-    runtimeMs: number;
-    styleScore: number;
-  };
-}
-
-export default function BattleArena({ userId, userName, userLevel, mode }: BattleArenaProps) {
+export default function BattleArena() {
   const [battleState, setBattleState] = useState<"idle" | "loading" | "fighting" | "finished">("idle");
   const [question, setQuestion] = useState<Question | null>(null);
   const [result, setResult] = useState<BattleResult | null>(null);
@@ -85,7 +54,7 @@ export default function BattleArena({ userId, userName, userLevel, mode }: Battl
     }
   };
 
-  const submitSolution = async (code: string) => {
+  const submitSolution = async () => {
     if (!question) return;
 
     setLoading(true);
@@ -119,7 +88,7 @@ export default function BattleArena({ userId, userName, userLevel, mode }: Battl
     setAiProgress(0);
   };
 
-  const formatTime = (seconds: number) => {
+  const formatTime = () => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
@@ -137,7 +106,7 @@ export default function BattleArena({ userId, userName, userLevel, mode }: Battl
         </p>
         <button
           onClick={startBattle}
-          className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-lg font-bold rounded-xl transition-all transform hover:scale-105"
+          className="px-8 py-4 bg-linier-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-lg font-bold rounded-xl transition-all transform hover:scale-105"
         >
           Start Battle
         </button>

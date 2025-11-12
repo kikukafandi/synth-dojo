@@ -7,15 +7,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 
-interface NavbarProps {
-  user: {
-    name?: string | null;
-    email?: string | null;
-    role?: string;
-  };
-}
 
-export default function Navbar({ user }: NavbarProps) {
+
+export default function Navbar() {
   const pathname = usePathname();
 
   const navLinks = [
@@ -30,7 +24,7 @@ export default function Navbar({ user }: NavbarProps) {
     navLinks.push({ href: "/admin", label: "Admin", icon: "⚙️" });
   }
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = () => pathname === href;
 
   return (
     <nav className="bg-gray-800 border-b border-purple-500/30">
@@ -38,7 +32,7 @@ export default function Navbar({ user }: NavbarProps) {
         <div className="flex justify-between h-16">
           <div className="flex">
             <Link href="/dashboard" className="flex items-center">
-              <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+              <span className="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r from-purple-400 to-pink-400">
                 Synth-Dojo
               </span>
             </Link>

@@ -6,7 +6,7 @@
  * @param points - Total points earned
  * @returns Current level
  */
-export function calculateLevel(points: number): number {
+export function calculateLevel(points) {
   // Level formula: sqrt(points / 100)
   return Math.floor(Math.sqrt(points / 100)) + 1;
 }
@@ -16,7 +16,7 @@ export function calculateLevel(points: number): number {
  * @param currentLevel - Current user level
  * @returns Points needed for next level
  */
-export function pointsForNextLevel(currentLevel: number): number {
+export function pointsForNextLevel(currentLevel) {
   return (currentLevel * currentLevel) * 100;
 }
 
@@ -25,7 +25,7 @@ export function pointsForNextLevel(currentLevel: number): number {
  * @param date - Date to format
  * @returns Formatted relative time string
  */
-export function formatRelativeTime(date: Date): string {
+export function formatRelativeTime(date) {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffSec = Math.floor(diffMs / 1000);
@@ -43,7 +43,7 @@ export function formatRelativeTime(date: Date): string {
  * Generates a random room code for matches
  * @returns 6-character room code
  */
-export function generateRoomCode(): string {
+export function generateRoomCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let code = '';
   for (let i = 0; i < 6; i++) {
@@ -57,7 +57,7 @@ export function generateRoomCode(): string {
  * @param email - Email to validate
  * @returns True if valid email format
  */
-export function isValidEmail(email: string): boolean {
+export function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
@@ -71,19 +71,19 @@ export function isValidEmail(email: string): boolean {
  * @returns Total score
  */
 export function calculateMatchScore(
-  correct: boolean,
-  runtimeMs: number,
-  styleScore: number,
-  basePoints: number = 100
-): number {
+  correct,
+  runtimeMs,
+  styleScore,
+  basePoints = 100
+) {
   if (!correct) return 0;
-  
+
   // Speed bonus (faster = more points, max 50% bonus)
   const speedBonus = Math.max(0, 1 - (runtimeMs / 5000)) * 0.5;
-  
+
   // Style bonus (max 30% bonus)
   const styleBonus = (styleScore / 100) * 0.3;
-  
+
   return Math.floor(basePoints * (1 + speedBonus + styleBonus));
 }
 
@@ -93,7 +93,7 @@ export function calculateMatchScore(
  * @param avgScore - Average score
  * @returns Difficulty level (1-5)
  */
-export function determineDifficulty(winRate: number, avgScore: number): number {
+export function determineDifficulty(winRate, avgScore) {
   if (winRate > 0.8 && avgScore > 80) return 5;
   if (winRate > 0.6 && avgScore > 60) return 4;
   if (winRate > 0.4 && avgScore > 40) return 3;
@@ -107,7 +107,7 @@ export function determineDifficulty(winRate: number, avgScore: number): number {
  * @param won - Whether user won
  * @returns New HP value
  */
-export function updateHP(currentHp: number, won: boolean): number {
+export function updateHP(currentHp, won) {
   if (won) {
     return Math.min(5, currentHp + 1); // Max HP is 5
   } else {

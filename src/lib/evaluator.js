@@ -2,30 +2,6 @@
 // Evaluates user code submissions against test cases
 // Returns: correctness, runtime, style score, and hint tokens
 
-export interface TestCase {
-  input: any[];
-  expected: any;
-}
-
-export interface EvaluationResult {
-  correct: boolean;
-  runtimeMs: number;
-  styleScore: number;
-  hintTokens: string[];
-  output?: any;
-  error?: string;
-  testResults?: {
-    passed: number;
-    total: number;
-    details: Array<{
-      input: any[];
-      expected: any;
-      actual: any;
-      passed: boolean;
-    }>;
-  };
-}
-
 /**
  * Evaluates code against test cases
  * @param code - User submitted code
@@ -34,12 +10,12 @@ export interface EvaluationResult {
  * @returns Evaluation result with correctness, runtime, and style metrics
  */
 export async function evaluateCode(
-  code: string,
-  testCases: TestCase[],
-  language: string = 'javascript'
-): Promise<EvaluationResult> {
+  code,
+  testCases,
+  language = 'javascript'
+) { // <-- Perbaikan: Mengganti ';' dengan '{'
   const startTime = Date.now();
-  const hintTokens: string[] = [];
+  const hintTokens = [];
   
   try {
     // Parse test cases
@@ -63,7 +39,7 @@ export async function evaluateCode(
     const testResults = {
       passed: 0,
       total: parsedTestCases.length,
-      details: [] as any[],
+      details: [], // <-- Menghapus 'as any[]'
     };
 
     // Run each test case
@@ -72,8 +48,8 @@ export async function evaluateCode(
         // Create safe execution context
         const evalCode = `
           ${code}
-          ${functionName}(${testCase.input.map((i: any) => JSON.stringify(i)).join(', ')})
-        `;
+          ${functionName}(${testCase.input.map((i) => JSON.stringify(i)).join(', ')})
+        `; // <-- Menghapus ': any'
         
         const result = eval(evalCode);
         const passed = JSON.stringify(result) === JSON.stringify(testCase.expected);
@@ -138,7 +114,7 @@ export async function evaluateCode(
  * @param code - Code to analyze
  * @returns Score from 0-100
  */
-function calculateStyleScore(code: string): number {
+function calculateStyleScore(code) { // <-- Menghapus ': string' dan ': number'
   let score = 100;
   
   // Check for proper indentation
@@ -175,11 +151,7 @@ function calculateStyleScore(code: string): number {
  * Simulates AI opponent evaluation for battle mode
  * Returns a score based on difficulty level
  */
-export function generateAIScore(difficulty: number): {
-  runtimeMs: number;
-  styleScore: number;
-  correct: boolean;
-} {
+export function generateAIScore(difficulty) { // <-- Menghapus ': number' dan tipe return
   // AI performance based on difficulty
   const baseRuntime = 100;
   const variance = 50;

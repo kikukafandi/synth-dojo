@@ -68,7 +68,7 @@ export default async function AdminQuestionsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700">
-                {questions.map((question: any) => (
+                {questions.map(() => (
                   <tr key={question.id} className="hover:bg-gray-700/50">
                     <td className="px-6 py-4">
                       <div>

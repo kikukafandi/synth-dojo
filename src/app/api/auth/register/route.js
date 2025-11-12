@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 import { prisma } from "@/lib/prisma";
 import { isValidEmail } from "@/lib/utils";
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   try {
     const body = await req.json();
     const { email, password, name } = body;

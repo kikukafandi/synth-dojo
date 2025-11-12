@@ -193,7 +193,7 @@ export default async function DashboardPage() {
             <h2 className="text-xl font-bold text-white mb-4">Recent Matches</h2>
             {user.matches.length > 0 ? (
               <div className="space-y-3">
-                {user.matches.map((match: any) => (
+                {user.matches.map(() => (
                   <div
                     key={match.id}
                     className="bg-gray-900 rounded-lg p-4 flex items-center justify-between"
@@ -231,7 +231,7 @@ export default async function DashboardPage() {
             <h2 className="text-xl font-bold text-white mb-4">Recent Achievements</h2>
             {user.achievements.length > 0 ? (
               <div className="space-y-3">
-                {user.achievements.map((ua: any) => (
+                {user.achievements.map(() => (
                   <div
                     key={ua.id}
                     className="bg-gray-900 rounded-lg p-4 flex items-center gap-4"

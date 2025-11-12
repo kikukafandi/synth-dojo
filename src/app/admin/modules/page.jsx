@@ -66,7 +66,7 @@ export default async function AdminModulesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700">
-              {modules.map((module: any) => (
+              {modules.map(() => (
                 <tr key={module.id} className="hover:bg-gray-700/50">
                   <td className="px-6 py-4">
                     <div>

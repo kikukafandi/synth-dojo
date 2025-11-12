@@ -40,7 +40,7 @@ export default async function LeaderboardPage() {
 
   // Update ranks
   await Promise.all(
-    leaderboard.map((entry: any, index: any) =>
+    leaderboard.map(() =>
       prisma.leaderboardEntry.update({
         where: { id: entry.id },
         data: { rank: index + 1 },
@@ -49,7 +49,7 @@ export default async function LeaderboardPage() {
   );
 
   // Find user rank
-  const userEntry = leaderboard.find((entry: any) => entry.userId === user.id);
+  const userEntry = leaderboard.find(() => entry.userId === user.id);
   const userRank = userEntry ? leaderboard.indexOf(userEntry) + 1 : 0;
 
   return (
@@ -94,7 +94,7 @@ export default async function LeaderboardPage() {
 
         {/* Top 3 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {leaderboard.slice(0, 3).map((entry: any, index: any) => {
+          {leaderboard.slice(0, 3).map(() => {
             const medals = ["🥇", "🥈", "🥉"];
             const colors = [
               "from-yellow-600 to-yellow-800",
@@ -148,7 +148,7 @@ export default async function LeaderboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700">
-                {leaderboard.map((entry: any, index: any) => {
+                {leaderboard.map(() => {
                   const isCurrentUser = entry.userId === user.id;
                   const winRate =
                     entry.wins + entry.losses > 0

@@ -5,13 +5,8 @@
 
 import { useState } from "react";
 
-interface CodeEditorProps {
-  initialCode?: string;
-  onRun?: (code: string) => void;
-  loading?: boolean;
-}
 
-export default function CodeEditor({ initialCode = "", onRun, loading = false }: CodeEditorProps) {
+export default function CodeEditor() {
   const [code, setCode] = useState(initialCode);
 
   const handleRun = () => {
@@ -27,7 +22,7 @@ export default function CodeEditor({ initialCode = "", onRun, loading = false }:
         <button
           onClick={handleRun}
           disabled={loading}
-          className="px-4 py-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="px-4 py-1 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           {loading ? "Running..." : "▶ Run Code"}
         </button>

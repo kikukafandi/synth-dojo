@@ -11,12 +11,10 @@
     "test:ui": "vitest --ui",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed.ts",
+    "db:seed": "node prisma/seed.js",
     "db:studio": "prisma studio"
   },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
+  
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
     "@prisma/client": "^6.19.0",
@@ -30,16 +28,13 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/bcrypt": "^6.0.0",
-    "@types/node": "^24.10.0",
-    "@types/react": "^19.2.3",
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.3",
     "@vitest/ui": "^4.0.8",
     "eslint": "^9",
     "eslint-config-next": "16.0.1",
     "prisma": "^6.19.0",
     "tailwindcss": "^4",
-    "tsx": "^4.20.6",
-    "typescript": "^5.9.3",
     "vitest": "^4.0.8"
   }
 }

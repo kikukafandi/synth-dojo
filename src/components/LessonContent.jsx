@@ -3,49 +3,15 @@
 import { useState } from "react";
 import CodeEditor from "@/components/CodeEditor";
 
-interface Question {
-  id: string;
-  title: string;
-  prompt: string;
-  starterCode: string | null;
-  testCases: string;
-  difficulty: number;
-  points: number;
-}
 
-interface LessonContentProps {
-  lesson: {
-    id: string;
-    title: string;
-    content: string;
-    codeExample: string | null;
-  };
-  questions: Question[];
-}
 
-interface TestResult {
-  correct: boolean;
-  runtimeMs: number;
-  styleScore: number;
-  testResults?: {
-    passed: number;
-    total: number;
-    details: Array<{
-      input: any[];
-      expected: any;
-      actual: any;
-      passed: boolean;
-    }>;
-  };
-  error?: string;
-}
 
-export default function LessonContent({ lesson, questions }: LessonContentProps) {
+export default function LessonContent() {
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
   const [testResult, setTestResult] = useState<TestResult | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleRunCode = async (code: string) => {
+  const handleRunCode = async () => {
     if (!selectedQuestion) return;
 
     setLoading(true);
