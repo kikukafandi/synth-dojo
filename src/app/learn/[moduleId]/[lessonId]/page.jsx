@@ -7,11 +7,9 @@ import Navbar from "@/components/Navbar";
 import LessonContent from "@/components/LessonContent";
 import Link from "next/link";
 
-export default async function LessonPage({ 
-  params 
-}: { 
-  params: { moduleId: string; lessonId: string } 
-}) {
+export default async function LessonPage(props) {
+  const params = await props.params;
+  console.log("Params:", params);
   const session = await auth();
   
   if (!session?.user?.email) {
@@ -40,7 +38,7 @@ export default async function LessonPage({
       },
     },
   });
-
+console.log(lesson);
   if (!lesson || lesson.moduleId !== params.moduleId) {
     redirect("/learn");
   }

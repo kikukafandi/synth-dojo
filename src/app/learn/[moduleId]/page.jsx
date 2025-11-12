@@ -6,9 +6,10 @@ import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 
-export default async function ModulePage() {
+export default async function ModulePage(props) {
+  const params = await props.params;
   const session = await auth();
-  
+
   if (!session?.user?.email) {
     redirect("/login");
   }
@@ -25,13 +26,9 @@ export default async function ModulePage() {
     where: { id: params.moduleId },
     include: {
       lessons: {
-        where: {
-          isPublished: true,
-        },
-        orderBy: {
-          order: "asc",
-        },
-      },
+        where: { isPublished: true },
+        orderBy: { order: "asc" },
+      }
     },
   });
 
@@ -42,7 +39,7 @@ export default async function ModulePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
       <Navbar user={session.user} />
-      
+
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link href="/learn" className="text-purple-400 hover:text-purple-300 mb-4 inline-block">
           ← Back to Modules

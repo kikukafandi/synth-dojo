@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { evaluateCode, generateAIScore } from "@/lib/evaluator";
 import { calculateMatchScore, updateHP } from "@/lib/utils";
 
-export async function POST() {
+export async function POST(req) {
   try {
     const session = await auth();
     

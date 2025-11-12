@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/Navbar";
 import BattleArena from "@/components/BattleArena";
 
-export default async function BattlePage() {
+export default async function BattlePage(props) {
   const session = await auth();
   
   if (!session?.user?.email) {
@@ -40,6 +40,7 @@ export default async function BattlePage() {
             Challenge AI opponents and prove your coding skills
           </p>
         </div>
+        
 
         <BattleArena 
           userId={user.id} 

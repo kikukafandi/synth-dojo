@@ -6,7 +6,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { evaluateCode } from "@/lib/evaluator";
 
-export async function POST() {
+export async function POST(req) {
   try {
     const session = await auth();
     

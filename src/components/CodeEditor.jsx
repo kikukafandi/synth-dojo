@@ -6,7 +6,7 @@
 import { useState } from "react";
 
 
-export default function CodeEditor() {
+export default function CodeEditor({ initialCode = "", onRun, loading = false }) {
   const [code, setCode] = useState(initialCode);
 
   const handleRun = () => {

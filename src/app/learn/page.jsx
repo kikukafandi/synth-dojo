@@ -9,7 +9,7 @@ import Link from "next/link";
 
 export default async function LearnPage() {
   const session = await auth();
-  
+
   if (!session?.user?.email) {
     redirect("/login");
   }
@@ -46,11 +46,10 @@ export default async function LearnPage() {
       order: "asc",
     },
   });
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
       <Navbar user={session.user} />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">Learning Modules</h1>
@@ -60,7 +59,7 @@ export default async function LearnPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {modules.map((module: any) => {
+          {modules.map((module) => {
             const userProgress = module.progress[0];
             const progressPercent = userProgress?.progress || 0;
             const isCompleted = userProgress?.isCompleted || false;
@@ -90,7 +89,7 @@ export default async function LearnPage() {
                     Level {module.difficulty}
                   </div>
                   <div className="text-gray-400 text-sm">
-                    {module.lessons.length} lessons
+                    {module.lessons.length} Lessons
                   </div>
                 </div>
 

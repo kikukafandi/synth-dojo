@@ -7,9 +7,8 @@ import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/Navbar";
 import { calculateLevel, pointsForNextLevel, formatRelativeTime } from "@/lib/utils";
 
-export default async function DashboardPage() {
+export default async function DashboardPage(props) {
   const session = await auth();
-  
   if (!session?.user?.email) {
     redirect("/login");
   }
@@ -44,14 +43,13 @@ export default async function DashboardPage() {
       },
     },
   });
-
   if (!user) {
     redirect("/login");
   }
 
   const nextLevelPoints = pointsForNextLevel(user.level);
   const progressPercent = (user.points / nextLevelPoints) * 100;
-  
+
   // Calculate win rate
   const totalMatches = await prisma.match.count({
     where: {
@@ -76,7 +74,7 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
       <Navbar user={session.user} />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
@@ -134,9 +132,8 @@ export default async function DashboardPage() {
               {[...Array(5)].map((_, i) => (
                 <div
                   key={i}
-                  className={`w-4 h-4 rounded-full ${
-                    i < user.hp ? "bg-red-500" : "bg-gray-700"
-                  }`}
+                  className={`w-4 h-4 rounded-full ${i < user.hp ? "bg-red-500" : "bg-gray-700"
+                    }`}
                 ></div>
               ))}
             </div>
@@ -193,15 +190,15 @@ export default async function DashboardPage() {
             <h2 className="text-xl font-bold text-white mb-4">Recent Matches</h2>
             {user.matches.length > 0 ? (
               <div className="space-y-3">
-                {user.matches.map(() => (
+                {user.matches.map((match) => (
                   <div
                     key={match.id}
                     className="bg-gray-900 rounded-lg p-4 flex items-center justify-between"
                   >
                     <div>
                       <p className="text-white font-medium">
-                        {match.mode === "ai_battle" ? "AI Battle" : 
-                         match.mode === "pvp" ? "PvP Match" : "Practice"}
+                        {match.mode === "ai_battle" ? "AI Battle" :
+                          match.mode === "pvp" ? "PvP Match" : "Practice"}
                       </p>
                       <p className="text-gray-400 text-sm">
                         {match.completedAt ? formatRelativeTime(match.completedAt) : "N/A"}

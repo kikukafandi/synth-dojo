@@ -2,10 +2,10 @@
 // Creates a new battle match and returns a question
 
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth.js";
+import { prisma } from "@/lib/prisma.js";
 
-export async function POST() {
+export async function POST(req) {
   try {
     const session = await auth();
     
@@ -17,6 +17,7 @@ export async function POST() {
       where: { email: session.user.email },
     });
 
+    console.log("User:", user);
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
@@ -58,7 +59,7 @@ export async function POST() {
               isReady: true,
             },
             {
-              userId: user.id, // For AI opponent, we use same user ID but mark as AI
+              userId: `${user.id}-ai`, // For AI opponent, we use same user ID but mark as AI
               isAI: true,
               isReady: true,
             },

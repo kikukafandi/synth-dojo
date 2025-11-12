@@ -1,17 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import CodeEditor from "@/components/CodeEditor";
+// Tambahkan .jsx agar impornya jelas
+import CodeEditor from "@/components/CodeEditor.jsx"; 
+import { marked } from "marked";
 
-
-
-
-export default function LessonContent() {
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
-  const [testResult, setTestResult] = useState<TestResult | null>(null);
+// Terima props 'lesson' dan 'questions' di sini
+export default function LessonContent({ lesson, questions }) {
+  // Hapus semua tipe TypeScript (<...>)
+  const [selectedQuestion, setSelectedQuestion] = useState(null);
+  const [testResult, setTestResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const handleRunCode = async () => {
+  // Terima 'code' sebagai parameter
+  const handleRunCode = async (code) => {
     if (!selectedQuestion) return;
 
     setLoading(true);
@@ -22,7 +24,7 @@ export default function LessonContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          code,
+          code, // 'code' sekarang sudah terdefinisi
           questionId: selectedQuestion.id,
           testCases: selectedQuestion.testCases,
         }),
@@ -45,11 +47,11 @@ export default function LessonContent() {
 
   return (
     <div className="space-y-8">
-      {/* Lesson Content */}
+      {/* Lesson Content (Variabel 'lesson' sekarang sudah terdefinisi) */}
       <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-8">
         <div
           className="prose prose-invert max-w-none"
-          dangerouslySetInnerHTML={{ __html: lesson.content.replace(/\n/g, "<br/>") }}
+          dangerouslySetInnerHTML={{ __html:marked(lesson.content) }}
         />
         
         {lesson.codeExample && (
@@ -62,7 +64,7 @@ export default function LessonContent() {
         )}
       </div>
 
-      {/* Practice Questions */}
+      {/* Practice Questions (Variabel 'questions' sekarang sudah terdefinisi) */}
       {questions.length > 0 && (
         <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-8">
           <h2 className="text-2xl font-bold text-white mb-6">Practice</h2>

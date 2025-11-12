@@ -7,9 +7,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 
-
-
-export default function Navbar() {
+// TERIMA PROPS 'user' DI SINI
+export default function Navbar({ user }) {
   const pathname = usePathname();
 
   const navLinks = [
@@ -20,11 +19,13 @@ export default function Navbar() {
     { href: "/leaderboard", label: "Leaderboard", icon: "🏆" },
   ];
 
+  // Sekarang 'user' (dari props) sudah terdefinisi
   if (user?.role === "admin") {
     navLinks.push({ href: "/admin", label: "Admin", icon: "⚙️" });
   }
 
-  const isActive = () => pathname === href;
+  // PERBAIKAN: Fungsi 'isActive' perlu parameter 'href'
+  const isActive = (href) => pathname === href;
 
   return (
     <nav className="bg-gray-800 border-b border-purple-500/30">
@@ -32,7 +33,8 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex">
             <Link href="/dashboard" className="flex items-center">
-              <span className="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r from-purple-400 to-pink-400">
+              {/* PERBAIKAN: Typo 'bg-linear-to-r' menjadi 'bg-gradient-to-r' */}
+              <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
                 Synth-Dojo
               </span>
             </Link>
@@ -42,7 +44,7 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    isActive(link.href)
+                    isActive(link.href) // <-- Sekarang ini berfungsi
                       ? "bg-purple-600 text-white"
                       : "text-gray-300 hover:bg-gray-700 hover:text-white"
                   }`}
@@ -55,6 +57,7 @@ export default function Navbar() {
           </div>
           <div className="flex items-center space-x-4">
             <span className="text-gray-300 text-sm hidden sm:block">
+              {/* Sekarang 'user' (dari props) sudah terdefinisi */}
               {user?.name || user?.email}
             </span>
             <button
@@ -74,7 +77,7 @@ export default function Navbar() {
             key={link.href}
             href={link.href}
             className={`block px-3 py-2 text-base font-medium rounded-lg ${
-              isActive(link.href)
+              isActive(link.href) // <-- Sekarang ini berfungsi
                 ? "bg-purple-600 text-white"
                 : "text-gray-300 hover:bg-gray-700 hover:text-white"
             }`}

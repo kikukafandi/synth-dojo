@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import CodeEditor from "./CodeEditor";
+// Tambahkan .jsx pada impor CodeEditor
+import CodeEditor from "./CodeEditor.jsx"; 
 
-
-export default function BattleArena() {
-  const [battleState, setBattleState] = useState<"idle" | "loading" | "fighting" | "finished">("idle");
-  const [question, setQuestion] = useState<Question | null>(null);
-  const [result, setResult] = useState<BattleResult | null>(null);
+export default function BattleArena({ mode, userLevel, userId, userName }) {
+  const [battleState, setBattleState] = useState("idle");
+  const [question, setQuestion] = useState(null);
+  const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
   const [aiProgress, setAiProgress] = useState(0);
@@ -54,7 +54,8 @@ export default function BattleArena() {
     }
   };
 
-  const submitSolution = async () => {
+  // PERBAIKAN: Terima 'code' dari CodeEditor
+  const submitSolution = async (code) => {
     if (!question) return;
 
     setLoading(true);
@@ -63,7 +64,7 @@ export default function BattleArena() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          code,
+          code, // 'code' sekarang sudah terdefinisi
           questionId: question.id,
           mode,
           timeSpent: 300 - timeLeft,
@@ -88,7 +89,8 @@ export default function BattleArena() {
     setAiProgress(0);
   };
 
-  const formatTime = () => {
+  // PERBAIKAN: Terima 'seconds' sebagai parameter
+  const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
@@ -106,7 +108,8 @@ export default function BattleArena() {
         </p>
         <button
           onClick={startBattle}
-          className="px-8 py-4 bg-linier-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-lg font-bold rounded-xl transition-all transform hover:scale-105"
+          // PERBAIKAN: Typo 'bg-linier-gradient-to-r'
+          className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-lg font-bold rounded-xl transition-all transform hover:scale-105"
         >
           Start Battle
         </button>
@@ -181,7 +184,7 @@ export default function BattleArena() {
         {/* Code Editor */}
         <CodeEditor
           initialCode={question.starterCode || ""}
-          onRun={submitSolution}
+          onRun={submitSolution} // Ini sekarang akan mengirim 'code'
           loading={loading}
         />
       </div>
