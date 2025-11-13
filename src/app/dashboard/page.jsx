@@ -72,186 +72,211 @@ export default async function DashboardPage(props) {
   const winRate = totalMatches > 0 ? Math.round((wins / totalMatches) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950/20 to-slate-950">
       <Navbar user={session.user} />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="absolute left-[30%] top-[-10%] h-[50rem] w-[50rem] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,_rgba(0,255,240,0.18),_transparent_60%)] blur-3xl pointer-events-none" />
+      <div className="absolute left-[70%] top-[40%] h-[36rem] w-[36rem] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,_rgba(255,0,184,0.15),_transparent_60%)] blur-3xl pointer-events-none" />
+      <main className="max-w-6xl mx-auto px-4 sm:px-8 py-10 relative z-10 flex flex-col gap-y-12">
         {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">
-            Welcome back, {user.name}! 👋
-          </h1>
-          <p className="text-gray-400">
-            Ready to continue your coding journey?
-          </p>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm">Level</p>
-                <p className="text-3xl font-bold text-purple-400">{user.level}</p>
-              </div>
-              <div className="text-4xl">⚡</div>
-            </div>
-            <div className="mt-4">
-              <div className="flex justify-between text-xs text-gray-400 mb-1">
-                <span>{user.points} XP</span>
-                <span>{nextLevelPoints} XP</span>
-              </div>
-              <div className="w-full bg-gray-700 rounded-full h-2">
-                <div
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full"
-                  style={{ width: `${Math.min(progressPercent, 100)}%` }}
-                ></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm">Total Points</p>
-                <p className="text-3xl font-bold text-yellow-400">{user.points}</p>
-              </div>
-              <div className="text-4xl">💎</div>
-            </div>
-          </div>
-
-          <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm">HP</p>
-                <p className="text-3xl font-bold text-red-400">{user.hp}/5</p>
-              </div>
-              <div className="text-4xl">❤️</div>
-            </div>
-            <div className="mt-2 flex gap-1">
-              {[...Array(5)].map((_, i) => (
-                <div
-                  key={i}
-                  className={`w-4 h-4 rounded-full ${i < user.hp ? "bg-red-500" : "bg-gray-700"
-                    }`}
-                ></div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm">Win Rate</p>
-                <p className="text-3xl font-bold text-green-400">{winRate}%</p>
-              </div>
-              <div className="text-4xl">🏆</div>
-            </div>
-            <p className="text-gray-400 text-sm mt-2">
-              {wins} wins / {totalMatches} matches
+        <section className="relative border rounded-xl p-6 bg-[linear-gradient(135deg,rgba(0,224,192,0.04),rgba(192,0,144,0.04))] border-cyan-400/20">
+          <div className="absolute left-1/2 top-1/2 w-80 h-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,_rgba(0,255,240,0.10),_transparent_70%)] blur-2xl opacity-50 pointer-events-none" />
+          <div className="text-left relative z-10">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-[linear-gradient(to_right,#00E0C0,#C00090)] mb-2">
+              Hello {user.name}!
+            </h1>
+            <p className="text-lg md:text-md text-cyan-100/90 font-medium">
+              Ready to continue your coding journey?
             </p>
           </div>
-        </div>
+        </section>
+        {/* Stats Cards */}
+        <section className="flex flex-col gap-y-4">
+          <h2 className="text-lg font-bold text-cyan-300 mb-2 tracking-wide uppercase drop-shadow-[0_0_8px_#00FFF099]">Your Stats</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="relative rounded-xl p-6 bg-[linear-gradient(135deg,rgba(0,224,192,0.04),rgba(192,0,144,0.04))] border border-cyan-400/10 hover:border-cyan-300/40 shadow-[0_0_10px_#00E0C099] transition-all overflow-hidden">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-cyan-200 text-sm">Level</p>
+                  <p className="text-3xl font-bold text-cyan-400">{user.level}</p>
+                </div>
+                <div className="drop-shadow-[0_0_8px_#00E0C0]">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00FFF0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" className="stroke-cyan-400" /></svg>
+                </div>
+              </div>
+              <div className="mt-4">
+                <div className="flex justify-between text-xs text-gray-400 mb-1">
+                  <span>{user.points} XP</span>
+                  <span>{nextLevelPoints} XP</span>
+                </div>
+                <div className="w-full bg-gray-700 rounded-full h-2">
+                  <div
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full"
+                    style={{ width: `${Math.min(progressPercent, 100)}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
 
+            <div className="relative rounded-xl p-6 bg-[linear-gradient(135deg,rgba(255,224,0,0.07),rgba(192,0,144,0.04))] border border-yellow-400/10 hover:border-yellow-300/40 shadow-[0_0_10px_#FFD60099] transition-all overflow-hidden">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-yellow-200 text-sm">Total Points</p>
+                  <p className="text-3xl font-bold text-yellow-400">{user.points}</p>
+                </div>
+                <div className="drop-shadow-[0_0_8px_#FFD600]">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFD600" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" className="stroke-yellow-400" /><path d="M12 8v4l3 3" className="stroke-yellow-400" /></svg>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative rounded-xl p-6 bg-[linear-gradient(135deg,rgba(255,0,128,0.07),rgba(0,224,192,0.04))] border border-pink-400/10 hover:border-pink-300/40 shadow-[0_0_10px_#FF008099] transition-all overflow-hidden">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-pink-200 text-sm">HP</p>
+                  <p className="text-3xl font-bold text-red-400">{user.hp}/5</p>
+                </div>
+                <div className="drop-shadow-[0_0_8px_#FF0080]">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FF0080" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21s-6-4.35-8-7.09C2 11.13 2 8.5 4.07 6.43a5.5 5.5 0 017.78 0 5.5 5.5 0 017.78 0C22 8.5 22 11.13 20 13.91 18 16.65 12 21 12 21z" className="stroke-pink-400" /></svg>
+                </div>
+              </div>
+              <div className="mt-2 flex gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-4 h-4 rounded-full ${i < user.hp ? "bg-red-500" : "bg-gray-700"
+                      }`}
+                  ></div>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative rounded-xl p-6 bg-[linear-gradient(135deg,rgba(0,255,240,0.09),rgba(255,0,184,0.07))] border border-cyan-400/10 hover:border-cyan-300/40 shadow-[0_0_10px_#00FFF099] transition-all overflow-hidden">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-cyan-200 text-sm">Win Rate</p>
+                  <p className="text-3xl font-bold text-green-400">{winRate}%</p>
+                </div>
+                <div className="drop-shadow-[0_0_8px_#00FFF0]">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFD600" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="5" className="stroke-yellow-400" /><path d="M8 21v-4a4 4 0 018 0v4" className="stroke-pink-400" /></svg>
+                </div>
+              </div>
+              <p className="text-gray-400 text-sm mt-2">
+                {wins} wins / {totalMatches} matches
+              </p>
+            </div>
+          </div>
+        </section>
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <a
-            href="/learn"
-            className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl p-6 hover:scale-105 transition-transform cursor-pointer"
-          >
-            <div className="text-4xl mb-2">📚</div>
-            <h3 className="text-xl font-bold text-white mb-2">Learn</h3>
-            <p className="text-blue-200">Practice with structured lessons</p>
-          </a>
+        <section className="flex flex-col gap-y-4">
+          <h2 className="text-lg font-bold text-pink-300 mb-2 tracking-wide uppercase drop-shadow-[0_0_8px_#FF00B899]">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <a
+              href="/learn"
+              className="relative rounded-xl p-6 bg-[linear-gradient(135deg,rgba(0,224,192,0.07),rgba(0,0,255,0.04))] border border-cyan-400/10 hover:border-cyan-300/40 shadow-[0_0_10px_#00E0C099] hover:scale-105 transition-all cursor-pointer overflow-hidden"
+            >
+              <div className="mb-2 drop-shadow-[0_0_8px_#00E0C0]">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00FFF0" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="16" rx="2" className="stroke-cyan-400" /><path d="M7 8h10M7 12h10M7 16h6" className="stroke-cyan-400" /></svg>
+              </div>
+              <h3 className="text-xl font-bold text-cyan-100 mb-2">Learn</h3>
+              <p className="text-cyan-200">Practice with structured lessons</p>
+            </a>
 
-          <a
-            href="/battle"
-            className="bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl p-6 hover:scale-105 transition-transform cursor-pointer"
-          >
-            <div className="text-4xl mb-2">⚔️</div>
-            <h3 className="text-xl font-bold text-white mb-2">AI Battle</h3>
-            <p className="text-purple-200">Challenge AI opponents</p>
-          </a>
+            <a
+              href="/battle"
+              className="relative rounded-xl p-6 bg-[linear-gradient(135deg,rgba(255,0,184,0.07),rgba(0,224,192,0.04))] border border-pink-400/10 hover:border-pink-300/40 shadow-[0_0_10px_#FF00B899] hover:scale-105 transition-all cursor-pointer overflow-hidden"
+            >
+              <div className="mb-2 drop-shadow-[0_0_8px_#FF00B8]">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF00B8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10h-7l-2 2v7" className="stroke-pink-400" /><circle cx="7" cy="17" r="2" className="stroke-pink-400" /><path d="M17 3l4 4-4 4" className="stroke-pink-400" /></svg>
+              </div>
+              <h3 className="text-xl font-bold text-pink-100 mb-2">AI Battle</h3>
+              <p className="text-pink-200">Challenge AI opponents</p>
+            </a>
 
-          <a
-            href="/pvp"
-            className="bg-gradient-to-br from-pink-600 to-pink-800 rounded-xl p-6 hover:scale-105 transition-transform cursor-pointer"
-          >
-            <div className="text-4xl mb-2">🎮</div>
-            <h3 className="text-xl font-bold text-white mb-2">PvP Match</h3>
-            <p className="text-pink-200">Battle real players</p>
-          </a>
-        </div>
-
+            <a
+              href="/pvp"
+              className="relative rounded-xl p-6 bg-[linear-gradient(135deg,rgba(192,0,144,0.07),rgba(0,255,240,0.04))] border border-fuchsia-400/10 hover:border-fuchsia-300/40 shadow-[0_0_10px_#C0009099] hover:scale-105 transition-all cursor-pointer overflow-hidden"
+            >
+              <div className="mb-2 drop-shadow-[0_0_8px_#C00090]">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C00090" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" className="stroke-fuchsia-400" /><path d="M8 21h8" className="stroke-fuchsia-400" /><circle cx="12" cy="12" r="3" className="stroke-fuchsia-400" /></svg>
+              </div>
+              <h3 className="text-xl font-bold text-fuchsia-100 mb-2">PvP Match</h3>
+              <p className="text-fuchsia-200">Battle real players</p>
+            </a>
+          </div>
+        </section>
         {/* Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Recent Matches */}
-          <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-6">
-            <h2 className="text-xl font-bold text-white mb-4">Recent Matches</h2>
-            {user.matches.length > 0 ? (
-              <div className="space-y-3">
-                {user.matches.map((match) => (
-                  <div
-                    key={match.id}
-                    className="bg-gray-900 rounded-lg p-4 flex items-center justify-between"
-                  >
-                    <div>
-                      <p className="text-white font-medium">
-                        {match.mode === "ai_battle" ? "AI Battle" :
-                          match.mode === "pvp" ? "PvP Match" : "Practice"}
-                      </p>
-                      <p className="text-gray-400 text-sm">
-                        {match.completedAt ? formatRelativeTime(match.completedAt) : "N/A"}
-                      </p>
+        <section className="flex flex-col gap-y-4">
+          <h2 className="text-lg font-bold text-fuchsia-300 mb-2 tracking-wide uppercase drop-shadow-[0_0_8px_#C0009099]">Recent Activity</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Recent Matches */}
+            <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-6">
+              <h2 className="text-xl font-bold text-white mb-4">Recent Matches</h2>
+              {user.matches.length > 0 ? (
+                <div className="space-y-3">
+                  {user.matches.map((match) => (
+                    <div
+                      key={match.id}
+                      className="bg-gray-900 rounded-lg p-4 flex items-center justify-between"
+                    >
+                      <div>
+                        <p className="text-white font-medium">
+                          {match.mode === "ai_battle" ? "AI Battle" :
+                            match.mode === "pvp" ? "PvP Match" : "Practice"}
+                        </p>
+                        <p className="text-gray-400 text-sm">
+                          {match.completedAt ? formatRelativeTime(match.completedAt) : "N/A"}
+                        </p>
+                      </div>
+                      <div>
+                        {match.winnerId === user.id ? (
+                          <span className="px-3 py-1 bg-green-600 text-white text-sm rounded-full">
+                            Won
+                          </span>
+                        ) : (
+                          <span className="px-3 py-1 bg-red-600 text-white text-sm rounded-full">
+                            Lost
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      {match.winnerId === user.id ? (
-                        <span className="px-3 py-1 bg-green-600 text-white text-sm rounded-full">
-                          Won
-                        </span>
-                      ) : (
-                        <span className="px-3 py-1 bg-red-600 text-white text-sm rounded-full">
-                          Lost
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-400">No matches yet. Start your first battle!</p>
-            )}
-          </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-400">No matches yet. Start your first battle!</p>
+              )}
+            </div>
 
-          {/* Recent Achievements */}
-          <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-6">
-            <h2 className="text-xl font-bold text-white mb-4">Recent Achievements</h2>
-            {user.achievements.length > 0 ? (
-              <div className="space-y-3">
-                {user.achievements.map(() => (
-                  <div
-                    key={ua.id}
-                    className="bg-gray-900 rounded-lg p-4 flex items-center gap-4"
-                  >
-                    <div className="text-3xl">{ua.achievement.icon}</div>
-                    <div className="flex-1">
-                      <p className="text-white font-medium">{ua.achievement.name}</p>
-                      <p className="text-gray-400 text-sm">
-                        {ua.achievement.description}
-                      </p>
+            {/* Recent Achievements */}
+            <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-6">
+              <h2 className="text-xl font-bold text-white mb-4">Recent Achievements</h2>
+              {user.achievements.length > 0 ? (
+                <div className="space-y-3">
+                  {user.achievements.map(() => (
+                    <div
+                      key={ua.id}
+                      className="bg-gray-900 rounded-lg p-4 flex items-center gap-4"
+                    >
+                      <div className="text-3xl">{ua.achievement.icon}</div>
+                      <div className="flex-1">
+                        <p className="text-white font-medium">{ua.achievement.name}</p>
+                        <p className="text-gray-400 text-sm">
+                          {ua.achievement.description}
+                        </p>
+                      </div>
+                      <div className="text-yellow-400 font-bold">
+                        +{ua.achievement.points}
+                      </div>
                     </div>
-                    <div className="text-yellow-400 font-bold">
-                      +{ua.achievement.points}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-400">No achievements yet. Keep learning!</p>
-            )}
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-400">No achievements yet. Keep learning!</p>
+              )}
+            </div>
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 }

@@ -53,20 +53,23 @@ export default async function LeaderboardPage() {
   const userRank = userEntry ? leaderboard.indexOf(userEntry) + 1 : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950/20 to-slate-950">
       <Navbar user={session.user} />
-      
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">🏆 Leaderboard</h1>
-          <p className="text-gray-400">
-            Compete with players around the world
-          </p>
-        </div>
+      <main className="max-w-6xl mx-auto px-4 sm:px-8 py-10 relative z-10 flex flex-col gap-y-10">
+        <section className="mb-6 relative border border-cyan-400/20 rounded-xl p-4 bg-[linear-gradient(135deg,rgba(0,224,192,0.04),rgba(192,0,144,0.04))]">
+          <div className="mb-6 text-left relative z-10">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-[linear-gradient(to_right,#00E0C0,#C00090)] mb-2 leading-tight pb-2 flex items-center gap-3">
+              <span className="text-5xl">🏆</span> Leaderboard
+            </h1>
+            <p className="text-cyan-100/90 text-lg">
+              Compete with players around the world
+            </p>
+          </div>
+        </section>
 
         {/* User's Current Rank */}
         {userEntry && (
-          <div className="bg-gradient-to-r from-purple-900 to-pink-900 border border-purple-500 rounded-xl p-6 mb-6">
+          <div className="bg-cyan-900/10 border border-cyan-400/20 rounded-xl p-6 mb-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="text-4xl font-bold text-white">
@@ -97,15 +100,13 @@ export default async function LeaderboardPage() {
           {leaderboard.slice(0, 3).map((entry, index) => {
             const medals = ["🥇", "🥈", "🥉"];
             const colors = [
-              "from-yellow-600 to-yellow-800",
-              "from-gray-400 to-gray-600",
-              "from-orange-600 to-orange-800",
-            ];
+  '', '', ''
+];
 
             return (
               <div
                 key={entry.id}
-                className={`bg-gradient-to-br ${colors[index]} rounded-xl p-6 text-center transform hover:scale-105 transition-transform`}
+                className={`border ${index===0 ? 'border-yellow-400/40' : index===1 ? 'border-cyan-400/40' : 'border-pink-400/40'} bg-transparent rounded-xl p-6 text-center transform hover:scale-105 transition-transform`}
               >
                 <div className="text-6xl mb-4">{medals[index]}</div>
                 <div className="text-2xl font-bold text-white mb-2">
@@ -133,84 +134,86 @@ export default async function LeaderboardPage() {
         </div>
 
         {/* Full Leaderboard */}
-        <div className="bg-gray-800 border border-purple-500/30 rounded-xl overflow-hidden">
+        <div className="rounded-xl overflow-hidden bg-[linear-gradient(135deg,rgba(0,224,192,0.07),rgba(192,0,144,0.04))] border border-cyan-400/20 shadow-[0_0_2px_#00FFF033]">
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-900">
+            <table className="w-full text-cyan-100">
+              <thead>
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-bold text-purple-400">Rank</th>
-                  <th className="px-6 py-4 text-left text-sm font-bold text-purple-400">Player</th>
-                  <th className="px-6 py-4 text-center text-sm font-bold text-purple-400">Level</th>
-                  <th className="px-6 py-4 text-center text-sm font-bold text-purple-400">Points</th>
-                  <th className="px-6 py-4 text-center text-sm font-bold text-purple-400">Wins</th>
-                  <th className="px-6 py-4 text-center text-sm font-bold text-purple-400">Losses</th>
-                  <th className="px-6 py-4 text-center text-sm font-bold text-purple-400">Win Rate</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-cyan-100 drop-shadow-[0_0_2px_#00E0C055]">Rank</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-cyan-100 drop-shadow-[0_0_2px_#00E0C055]">Player</th>
+                  <th className="px-6 py-4 text-center text-sm font-bold text-cyan-100 drop-shadow-[0_0_2px_#00E0C055]">Level</th>
+                  <th className="px-6 py-4 text-center text-sm font-bold text-yellow-300 drop-shadow-[0_0_2px_#FFD60066]">Points</th>
+                  <th className="px-6 py-4 text-center text-sm font-bold text-pink-200 drop-shadow-[0_0_2px_#FF00B866]">Wins</th>
+                  <th className="px-6 py-4 text-center text-sm font-bold text-red-300 drop-shadow-[0_0_2px_#FF008066]">Losses</th>
+                  <th className="px-6 py-4 text-center text-sm font-bold text-cyan-100 drop-shadow-[0_0_2px_#00E0C055]">Win Rate</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-700">
+              <tbody>
                 {leaderboard.map((entry, index) => {
                   const isCurrentUser = entry.userId === user.id;
                   const winRate =
                     entry.wins + entry.losses > 0
                       ? Math.round((entry.wins / (entry.wins + entry.losses)) * 100)
                       : 0;
-
+                  const rowBg = isCurrentUser
+                    ? "bg-cyan-900/10 drop-shadow-[0_0_4px_#00E0C055]"
+                    : index < 3
+                      ? "bg-pink-900/10 drop-shadow-[0_0_4px_#FF00B855]"
+                      : "hover:bg-cyan-400/10 hover:border-cyan-300/40";
                   return (
                     <tr
                       key={entry.id}
-                      className={`${
-                        isCurrentUser ? "bg-purple-900/30" : "hover:bg-gray-700/50"
-                      } transition-colors`}
+                      className={`${rowBg} border-b border-cyan-400/10 transition-all`}
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <span className="text-white font-bold text-lg">
+                          <span className="text-cyan-100 font-bold text-lg drop-shadow-[0_0_2px_#00E0C055]">
                             #{index + 1}
                           </span>
                           {index < 3 && (
-                            <span className="text-2xl">
-                              {["🥇", "🥈", "🥉"][index]}
+                            <span className="text-2xl drop-shadow-[0_0_2px_#FFD60066]">
+                              {['🥇','🥈','🥉'][index]}
                             </span>
                           )}
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-pink-400 flex items-center justify-center text-white font-bold drop-shadow-[0_0_2px_#00E0C055]">
                             {(entry.user.name || entry.user.email)[0].toUpperCase()}
                           </div>
                           <div>
-                            <p className="text-white font-medium">
+                            <p className="text-cyan-100 font-medium">
                               {entry.user.name || entry.user.email.split("@")[0]}
                             </p>
                             {isCurrentUser && (
-                              <span className="text-purple-400 text-xs">You</span>
+                              <span className="text-pink-400 text-xs">You</span>
                             )}
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <span className="px-3 py-1 bg-purple-600 rounded-full text-white text-sm font-bold">
+                        <span className="px-3 py-1 bg-[#00E0C0] rounded-full text-white text-sm font-bold shadow-[0_0_4px_#00E0C055]">
                           {entry.level}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <span className="text-yellow-400 font-bold text-lg">
+                        <span className="px-3 py-1 bg-yellow-400/20 text-yellow-300 rounded-full font-bold text-lg shadow-[0_0_6px_#FFD600]">
                           {entry.points}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <span className="text-green-400 font-bold">
+                        <span className="px-3 py-1 bg-pink-400/20 text-pink-200 rounded-full font-bold shadow-[0_0_6px_#FF00B8]">
                           {entry.wins}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <span className="text-red-400 font-bold">
+                        <span className="px-3 py-1 bg-red-400/20 text-red-300 rounded-full font-bold shadow-[0_0_6px_#FF0080]">
                           {entry.losses}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <span className="text-white font-bold">
+                        <span className="text-cyan-100 font-bold">
                           {winRate}%
                         </span>
                       </td>
@@ -221,7 +224,7 @@ export default async function LeaderboardPage() {
             </table>
           </div>
         </div>
-      </div>
+    </main>
     </div>
   );
 }

@@ -48,17 +48,16 @@ export default function LessonContent({ lesson, questions }) {
   return (
     <div className="space-y-8">
       {/* Lesson Content (Variabel 'lesson' sekarang sudah terdefinisi) */}
-      <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-8">
+      <div className="rounded-xl p-8 bg-[linear-gradient(135deg,rgba(0,224,192,0.04),rgba(192,0,144,0.04))] border border-cyan-400/20 shadow-[0_0_16px_#00E0C099]">
         <div
           className="prose prose-invert max-w-none"
           dangerouslySetInnerHTML={{ __html:marked(lesson.content) }}
         />
-        
         {lesson.codeExample && (
           <div className="mt-6">
-            <h3 className="text-lg font-bold text-white mb-3">Example:</h3>
-            <pre className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-              <code className="text-sm text-gray-300">{lesson.codeExample}</code>
+            <h3 className="text-lg font-bold text-cyan-200 mb-3">Example:</h3>
+            <pre className="bg-gray-900 rounded-lg p-4 overflow-x-auto border border-cyan-400/10">
+              <code className="text-sm text-cyan-100">{lesson.codeExample}</code>
             </pre>
           </div>
         )}
@@ -66,8 +65,10 @@ export default function LessonContent({ lesson, questions }) {
 
       {/* Practice Questions (Variabel 'questions' sekarang sudah terdefinisi) */}
       {questions.length > 0 && (
-        <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-8">
-          <h2 className="text-2xl font-bold text-white mb-6">Practice</h2>
+        <div className="rounded-xl p-8 bg-[linear-gradient(135deg,rgba(0,224,192,0.04),rgba(192,0,144,0.04))] border border-pink-400/20 shadow-[0_0_10px_#FF00B899]">
+          <h2 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-cyan-400 to-pink-400  mb-6 leading-tight">
+            Practice
+          </h2>
           
           {!selectedQuestion ? (
             <div className="space-y-3">
@@ -75,22 +76,22 @@ export default function LessonContent({ lesson, questions }) {
                 <button
                   key={question.id}
                   onClick={() => setSelectedQuestion(question)}
-                  className="w-full text-left bg-gray-900 hover:bg-gray-700 border border-purple-500/30 rounded-lg p-4 transition-colors"
+                  className="w-full text-left bg-[linear-gradient(135deg,rgba(0,224,192,0.07),rgba(192,0,144,0.04))] hover:bg-[linear-gradient(135deg,rgba(0,255,240,0.10),rgba(255,0,184,0.08))] border border-cyan-400/10 hover:border-cyan-300/40 rounded-lg p-4 transition-all shadow-[0_0_6px_#00FFF055]"
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-lg font-bold text-white mb-1">
+                      <h3 className="text-lg font-bold text-cyan-100 mb-1">
                         {question.title}
                       </h3>
-                      <p className="text-gray-400 text-sm">
+                      <p className="text-cyan-200 text-sm">
                         {question.prompt.substring(0, 100)}...
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-1 bg-purple-600 rounded text-xs text-white">
+                      <span className="px-2 py-1 bg-[#C00090] rounded text-xs text-white">
                         Level {question.difficulty}
                       </span>
-                      <span className="text-yellow-400 font-bold">
+                      <span className="px-2 py-1 bg-cyan-400/20 rounded text-xs text-cyan-100 font-bold">
                         +{question.points}
                       </span>
                     </div>
@@ -109,7 +110,7 @@ export default function LessonContent({ lesson, questions }) {
                     setSelectedQuestion(null);
                     setTestResult(null);
                   }}
-                  className="text-gray-400 hover:text-white"
+                  className="text-cyan-300 hover:text-pink-300 font-medium transition-colors"
                 >
                   ← Back
                 </button>

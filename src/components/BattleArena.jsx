@@ -108,8 +108,7 @@ export default function BattleArena({ mode, userLevel, userId, userName }) {
         </p>
         <button
           onClick={startBattle}
-          // PERBAIKAN: Typo 'bg-linier-gradient-to-r'
-          className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-lg font-bold rounded-xl transition-all transform hover:scale-105"
+          className="px-8 py-4 bg-[linear-gradient(to_right,#00E0C0,#C00090)] hover:scale-105 text-white text-lg font-bold rounded-xl transition-all hover:shadow-[0_0_10px_#00E0C099]"
         >
           Start Battle
         </button>
