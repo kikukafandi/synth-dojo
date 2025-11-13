@@ -13,7 +13,7 @@ export async function evaluateCode(
   code,
   testCases,
   language = 'javascript'
-) { // <-- Perbaikan: Mengganti ';' dengan '{'
+) { 
   const startTime = Date.now();
   const hintTokens = [];
   
@@ -39,7 +39,7 @@ export async function evaluateCode(
     const testResults = {
       passed: 0,
       total: parsedTestCases.length,
-      details: [], // <-- Menghapus 'as any[]'
+      details: [], 
     };
 
     // Run each test case
@@ -49,7 +49,7 @@ export async function evaluateCode(
         const evalCode = `
           ${code}
           ${functionName}(${testCase.input.map((i) => JSON.stringify(i)).join(', ')})
-        `; // <-- Menghapus ': any'
+        `; 
         
         const result = eval(evalCode);
         const passed = JSON.stringify(result) === JSON.stringify(testCase.expected);
@@ -114,7 +114,7 @@ export async function evaluateCode(
  * @param code - Code to analyze
  * @returns Score from 0-100
  */
-function calculateStyleScore(code) { // <-- Menghapus ': string' dan ': number'
+function calculateStyleScore(code) { 
   let score = 100;
   
   // Check for proper indentation
