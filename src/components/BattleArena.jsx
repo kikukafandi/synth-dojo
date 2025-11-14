@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 // Tambahkan .jsx pada impor CodeEditor
-import CodeEditor from "./CodeEditor.jsx"; 
+import CodeEditor from "./CodeEditor.jsx";
 
 export default function BattleArena({ mode, userLevel, userId, userName }) {
   const [battleState, setBattleState] = useState("idle");
@@ -16,6 +16,7 @@ export default function BattleArena({ mode, userLevel, userId, userName }) {
   const [matchId, setMatchId] = useState(null);
   const [typingSpeed, setTypingSpeed] = useState(50); // milliseconds per character
   const [aiTypingStats, setAiTypingStats] = useState({ currentLength: 0, totalLength: 0 });
+  const [aiProvider, setAiProvider] = useState('openai');
 
   useEffect(() => {
     if (battleState === "fighting" && timeLeft > 0) {
@@ -74,14 +75,31 @@ export default function BattleArena({ mode, userLevel, userId, userName }) {
       setAiCode("");
       setAiProgress(0);
       setAiTypingStats({ currentLength: 0, totalLength: 0 });
-      
+      const apiUrl = aiProvider === 'gemini'
+        ? "/api/battle/gemini-code"  // Route baru kita
+        : "/api/battle/ai-code";      // Route lama (OpenAI)
+
+      console.log(`Starting AI coding with: ${aiProvider} via ${apiUrl}`)
+
       console.log("Starting AI coding with:", {
         prompt: questionData.prompt,
         difficulty: questionData.difficulty,
         typingSpeed: typingSpeed
       });
-      
-      const response = await fetch("/api/battle/ai-code", {
+
+      // const response = await fetch("/api/battle/ai-code", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({
+      //     prompt: questionData.prompt,
+      //     starterCode: questionData.starterCode,
+      //     difficulty: questionData.difficulty,
+      //     matchId: matchId,
+      //     typingSpeed: typingSpeed
+      //   }),
+      // });
+
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -95,24 +113,31 @@ export default function BattleArena({ mode, userLevel, userId, userName }) {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("API Error:", response.status, errorText);
         throw new Error(`Failed to start AI coding: ${response.status} ${errorText}`);
       }
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
+      let aiCodeBuffer = "";
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
         const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
+        console.log("[AI Streaming Chunk]", chunk);
 
+        // src/components/BattleArena.jsx - BENAR
+
+        // KEDUA provider (OpenAI dan Gemini) mengirimkan format JSON
+        // Jadi kita tidak perlu membedakan mereka di sini.
+
+        const lines = chunk.split('\n');
         for (const line of lines) {
           if (line.startsWith('data: ')) {
             try {
               const data = JSON.parse(line.slice(6));
+
               
               if (data.type === 'start') {
                 setAiTyping(true);
@@ -132,8 +157,6 @@ export default function BattleArena({ mode, userLevel, userId, userName }) {
                   currentLength: data.code.length,
                   totalLength: data.code.length
                 });
-                
-                // Check if using mock code
                 if (data.code.includes('// AI analyzing') || data.code.includes('// AI thinking') || data.code.includes('// AI calculating')) {
                   console.info("Using mock AI code - add OPENAI_API_KEY to .env for real AI");
                 }
@@ -142,7 +165,7 @@ export default function BattleArena({ mode, userLevel, userId, userName }) {
                 setAiTyping(false);
               }
             } catch (e) {
-              // Skip invalid JSON lines
+              console.warn(`[${aiProvider} Data Parse Error]`, line, e);
             }
           }
         }
@@ -150,7 +173,7 @@ export default function BattleArena({ mode, userLevel, userId, userName }) {
     } catch (error) {
       console.error("AI coding stream error:", error);
       setAiTyping(false);
-      setAiCode(`// Error: ${error.message}\n// Please check your OpenAI API key and try again.`);
+      setAiCode(`// Error: ${error.message}\n // Please try again later.`);
     }
   };
 
@@ -164,7 +187,7 @@ export default function BattleArena({ mode, userLevel, userId, userName }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          code, // 'code' sekarang sudah terdefinisi
+          code, 
           questionId: question.id,
           mode,
           timeSpent: 300 - timeLeft,
@@ -193,7 +216,7 @@ export default function BattleArena({ mode, userLevel, userId, userName }) {
     setAiTypingStats({ currentLength: 0, totalLength: 0 });
   };
 
-  // PERBAIKAN: Terima 'seconds' sebagai parameter
+
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -206,11 +229,32 @@ export default function BattleArena({ mode, userLevel, userId, userName }) {
         <div className="text-6xl mb-6">⚔️</div>
         <h2 className="text-3xl font-bold text-white mb-4">Ready for Battle?</h2>
         <p className="text-gray-400 mb-8">
-          {mode === "ai_battle" 
-            ? "Challenge an AI opponent matched to your level" 
+          {mode === "ai_battle"
+            ? "Challenge an AI opponent matched to your level"
             : "Face off against a real player in real-time"}
         </p>
-        
+
+        {/* AI Typing Speed Settings */}
+        {mode === "ai_battle" && (
+          <div className="mb-6 max-w-md mx-auto">
+            <label htmlFor="aiProvider" className="block text-sm font-medium text-gray-300 mb-2">
+              Choose your Opponent
+            </label>
+            
+            <select
+              id="aiProvider"
+              value={aiProvider}
+              onChange={(e) => setAiProvider(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-700 bg-gray-900 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="openai">Kudoku Master</option>
+              <option value="gemini">Ratio Gen</option>
+            </select>
+            <p className="text-xs text-gray-500 mt-1">
+              {aiProvider === 'openai' ? 'Menggunakan ai.dinoiki.com' : 'Menggunakan Google Gemini API'}
+            </p>
+          </div>
+        )}
         {/* AI Typing Speed Settings */}
         {mode === "ai_battle" && (
           <div className="mb-8 max-w-md mx-auto">
@@ -246,6 +290,7 @@ export default function BattleArena({ mode, userLevel, userId, userName }) {
         >
           Start Battle
         </button>
+
       </div>
     );
   }
@@ -392,7 +437,7 @@ export default function BattleArena({ mode, userLevel, userId, userName }) {
 
   if (battleState === "finished" && result) {
     const userWon = result.winner === "user";
-    
+
     return (
       <div className="bg-gray-800 border border-purple-500/30 rounded-xl p-12">
         <div className="text-center mb-8">
@@ -403,8 +448,8 @@ export default function BattleArena({ mode, userLevel, userId, userName }) {
             {userWon ? "Victory!" : "Defeat"}
           </h2>
           <p className="text-gray-400">
-            {userWon 
-              ? "Congratulations! You defeated your opponent!" 
+            {userWon
+              ? "Congratulations! You defeated your opponent!"
               : "Better luck next time!"}
           </p>
         </div>
