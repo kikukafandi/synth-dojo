@@ -105,10 +105,18 @@ YOUR CODE (RAW JAVASCRIPT ONLY):`; // Ini mengarahkan AI untuk langsung menulis 
  */
 export async function generateGeminiQuestion(topic, difficulty) {
     try {
+        // === Perubahan v1: Dapatkan model ===
+        const model = genAI.getGenerativeModel({
+            model: MODEL_NAME,
+            safetySettings: safetySettings,
+        });
+
         const prompt = `
       Buat sebuah soal coding JavaScript dengan struktur JSON berikut.
       Topik: "${topic}"
       Tingkat Kesulitan (1-5): ${difficulty}
+
+      Anda HARUS membalas HANYA dengan JSON yang valid. Jangan gunakan markdown \`\`\`json.
 
       Struktur JSON yang DIHARUSKAN:
       {
@@ -121,17 +129,20 @@ export async function generateGeminiQuestion(topic, difficulty) {
       }
     `;
 
-        const result = await ai.models.generateContent({
-            model: MODEL_NAME,
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
-            generationConfig: {
-                responseMimeType: "application/json",
-            },
-            safetySettings: safetySettings,
-        });
+        // === Perubahan v1: Panggil model.generateContent ===
+        const result = await model.generateContent(prompt);
 
-        // Ini menggunakan .text() karena BUKAN stream, ini sudah benar
-        const responseText = result.response.text();
+        // === Perubahan v1: Akses respons ===
+        const response = result.response;
+        let responseText = response.text();
+
+        // Bersihkan jika AI masih menyertakan markdown
+        if (responseText.startsWith("```json")) {
+            responseText = responseText.substring(7, responseText.length - 3).trim();
+        } else if (responseText.startsWith("```")) {
+            responseText = responseText.substring(3, responseText.length - 3).trim();
+        }
+
         return JSON.parse(responseText);
 
     } catch (error) {
