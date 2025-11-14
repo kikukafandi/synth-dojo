@@ -151,7 +151,7 @@ function calculateStyleScore(code) {
  * Simulates AI opponent evaluation for battle mode
  * Returns a score based on difficulty level
  */
-export function generateAIScore(difficulty) { // <-- Menghapus ': number' dan tipe return
+export function generateAIScore(difficulty) { 
   // AI performance based on difficulty
   const baseRuntime = 100;
   const variance = 50;

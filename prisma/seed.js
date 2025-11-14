@@ -7,6 +7,21 @@ import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
+
+  console.log('🗑️ Resetting database (truncate all tables)...');
+  
+  await prisma.$executeRawUnsafe(`
+    DO $$ DECLARE
+        r RECORD;
+    BEGIN
+        FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()) LOOP
+            EXECUTE 'TRUNCATE TABLE "' || r.tablename || '" RESTART IDENTITY CASCADE;';
+        END LOOP;
+    END $$;
+  `);
+
+  console.log('🧼 All tables cleared (IDs reset).');
+
   console.log('🌱 Starting database seed...');
 
   // Create admin user
@@ -107,7 +122,7 @@ async function main() {
 
   // Create sample questions
   const lessons = await prisma.lesson.findMany();
-  
+
   const questions = [
     {
       lessonId: lessons[0]?.id,
@@ -160,8 +175,8 @@ async function main() {
       prompt: 'Write a function that returns an array of numbers from 1 to n, but for multiples of 3 return "Fizz", for multiples of 5 return "Buzz", and for multiples of both return "FizzBuzz".',
       starterCode: 'function fizzBuzz(n) {\n  // Your code here\n}',
       testCases: JSON.stringify([
-        { input: [15], expected: [1,2,'Fizz',4,'Buzz','Fizz',7,8,'Fizz','Buzz',11,'Fizz',13,14,'FizzBuzz'] },
-        { input: [5], expected: [1,2,'Fizz',4,'Buzz'] }
+        { input: [15], expected: [1, 2, 'Fizz', 4, 'Buzz', 'Fizz', 7, 8, 'Fizz', 'Buzz', 11, 'Fizz', 13, 14, 'FizzBuzz'] },
+        { input: [5], expected: [1, 2, 'Fizz', 4, 'Buzz'] }
       ]),
       difficulty: 2,
       points: 25,

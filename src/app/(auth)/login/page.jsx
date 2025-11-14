@@ -37,7 +37,7 @@ export default function LoginPage() {
     }
   };
 
-  const handleOAuthSignIn = () => {
+  const handleOAuthSignIn = (provider) => {
     signIn(provider, { callbackUrl: "/dashboard" });
   };
 
