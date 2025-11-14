@@ -5,7 +5,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { handleSignOut } from "@/app/actions/auth";
 
 // TERIMA PROPS 'user' DI SINI
 export default function Navbar({ user }) {
@@ -82,7 +82,7 @@ export default function Navbar({ user }) {
               {user?.name || user?.email}
             </span>
             <button
-              onClick={() => signOut({ callbackUrl: "/login" })}
+              onClick={handleSignOut}
               className="px-4 py-2 text-sm font-medium text-white rounded-lg bg-[linear-gradient(to_right,#00E0C0,#C00090)] hover:shadow-[0_0_15px_#C00090] hover:scale-105 "
             >
               Logout

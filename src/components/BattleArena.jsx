@@ -11,6 +11,11 @@ export default function BattleArena({ mode, userLevel, userId, userName }) {
   const [loading, setLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
   const [aiProgress, setAiProgress] = useState(0);
+  const [aiCode, setAiCode] = useState("");
+  const [aiTyping, setAiTyping] = useState(false);
+  const [matchId, setMatchId] = useState(null);
+  const [typingSpeed, setTypingSpeed] = useState(50); // milliseconds per character
+  const [aiTypingStats, setAiTypingStats] = useState({ currentLength: 0, totalLength: 0 });
 
   useEffect(() => {
     if (battleState === "fighting" && timeLeft > 0) {
@@ -45,12 +50,107 @@ export default function BattleArena({ mode, userLevel, userId, userName }) {
 
       const data = await response.json();
       setQuestion(data.question);
+      setMatchId(data.matchId);
       setBattleState("fighting");
       setTimeLeft(300);
       setAiProgress(0);
+      setAiCode("");
+      setAiTyping(false);
+
+      // Start AI coding if in AI battle mode
+      if (mode === "ai_battle") {
+        startAICoding(data.question);
+      }
     } catch (error) {
       console.error("Failed to start battle:", error);
       setBattleState("idle");
+    }
+  };
+
+  // Start AI coding with real-time streaming
+  const startAICoding = async (questionData) => {
+    try {
+      setAiTyping(true);
+      setAiCode("");
+      setAiProgress(0);
+      setAiTypingStats({ currentLength: 0, totalLength: 0 });
+      
+      console.log("Starting AI coding with:", {
+        prompt: questionData.prompt,
+        difficulty: questionData.difficulty,
+        typingSpeed: typingSpeed
+      });
+      
+      const response = await fetch("/api/battle/ai-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: questionData.prompt,
+          starterCode: questionData.starterCode,
+          difficulty: questionData.difficulty,
+          matchId: matchId,
+          typingSpeed: typingSpeed
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Error:", response.status, errorText);
+        throw new Error(`Failed to start AI coding: ${response.status} ${errorText}`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              
+              if (data.type === 'start') {
+                setAiTyping(true);
+                setAiProgress(0);
+              } else if (data.type === 'typing') {
+                setAiCode(data.code);
+                setAiProgress(data.progress);
+                setAiTypingStats({
+                  currentLength: data.currentLength,
+                  totalLength: data.totalLength
+                });
+              } else if (data.type === 'complete') {
+                setAiCode(data.code);
+                setAiProgress(100);
+                setAiTyping(false);
+                setAiTypingStats({
+                  currentLength: data.code.length,
+                  totalLength: data.code.length
+                });
+                
+                // Check if using mock code
+                if (data.code.includes('// AI analyzing') || data.code.includes('// AI thinking') || data.code.includes('// AI calculating')) {
+                  console.info("Using mock AI code - add OPENAI_API_KEY to .env for real AI");
+                }
+              } else if (data.type === 'error') {
+                console.error("AI coding error:", data.error);
+                setAiTyping(false);
+              }
+            } catch (e) {
+              // Skip invalid JSON lines
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("AI coding stream error:", error);
+      setAiTyping(false);
+      setAiCode(`// Error: ${error.message}\n// Please check your OpenAI API key and try again.`);
     }
   };
 
@@ -87,6 +187,10 @@ export default function BattleArena({ mode, userLevel, userId, userName }) {
     setResult(null);
     setTimeLeft(300);
     setAiProgress(0);
+    setAiCode("");
+    setAiTyping(false);
+    setMatchId(null);
+    setAiTypingStats({ currentLength: 0, totalLength: 0 });
   };
 
   // PERBAIKAN: Terima 'seconds' sebagai parameter
@@ -106,6 +210,36 @@ export default function BattleArena({ mode, userLevel, userId, userName }) {
             ? "Challenge an AI opponent matched to your level" 
             : "Face off against a real player in real-time"}
         </p>
+        
+        {/* AI Typing Speed Settings */}
+        {mode === "ai_battle" && (
+          <div className="mb-8 max-w-md mx-auto">
+            <label className="block text-sm font-medium text-gray-300 mb-3">
+              AI Typing Speed: {typingSpeed}ms per character
+            </label>
+            <div className="flex items-center gap-4">
+              <span className="text-xs text-gray-400">Fast</span>
+              <input
+                type="range"
+                min="20"
+                max="150"
+                value={typingSpeed}
+                onChange={(e) => setTypingSpeed(Number(e.target.value))}
+                className="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                style={{
+                  background: `linear-gradient(to right, #00E0C0 0%, #C00090 ${((typingSpeed - 20) / 130) * 100}%, #374151 ${((typingSpeed - 20) / 130) * 100}%, #374151 100%)`
+                }}
+              />
+              <span className="text-xs text-gray-400">Slow</span>
+            </div>
+            <div className="flex justify-between text-xs text-gray-500 mt-2">
+              <span>Blazing (20ms)</span>
+              <span>Human-like (80ms)</span>
+              <span>Thoughtful (150ms)</span>
+            </div>
+          </div>
+        )}
+        
         <button
           onClick={startBattle}
           className="px-8 py-4 bg-[linear-gradient(to_right,#00E0C0,#C00090)] hover:scale-105 text-white text-lg font-bold rounded-xl transition-all hover:shadow-[0_0_10px_#00E0C099]"
@@ -180,12 +314,78 @@ export default function BattleArena({ mode, userLevel, userId, userName }) {
           <p className="text-gray-300">{question.prompt}</p>
         </div>
 
-        {/* Code Editor */}
-        <CodeEditor
-          initialCode={question.starterCode || ""}
-          onRun={submitSolution} // Ini sekarang akan mengirim 'code'
-          loading={loading}
-        />
+        {/* Battle Coding Area */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* User Code Editor */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-bold text-purple-400">Your Code</h3>
+              <span className="text-sm text-gray-400">You</span>
+            </div>
+            <CodeEditor
+              initialCode={question.starterCode || ""}
+              onRun={submitSolution}
+              loading={loading}
+            />
+          </div>
+
+          {/* AI Code Display */}
+          {mode === "ai_battle" && (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-bold text-pink-400">AI Code</h3>
+                <div className="flex items-center gap-2">
+                  {aiTyping && (
+                    <div className="flex items-center gap-2 text-sm text-pink-400">
+                      <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse"></div>
+                      <span>AI is typing...</span>
+                      <span className="text-xs text-gray-400">
+                        ({aiTypingStats.currentLength}/{aiTypingStats.totalLength} chars)
+                      </span>
+                    </div>
+                  )}
+                  <span className="text-sm text-gray-400">AI Bot</span>
+                  {aiCode && (aiCode.includes('// AI analyzing') || aiCode.includes('// AI thinking') || aiCode.includes('// AI calculating')) && (
+                    <span className="text-xs text-yellow-400 bg-yellow-900/20 px-2 py-1 rounded">
+                      Demo Mode
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="rounded-xl overflow-hidden bg-[linear-gradient(135deg,rgba(255,0,184,0.07),rgba(192,0,144,0.04))] border border-pink-400/20 shadow-[0_0_10px_#FF00B899]">
+                <div className="bg-gray-800 px-4 py-2 border-b border-pink-400/20 flex items-center justify-between">
+                  <span className="text-gray-400 text-sm font-mono">ai-solution.js</span>
+                  <div className="flex items-center gap-2">
+                    <div className="text-xs text-pink-400">
+                      {Math.round(aiProgress)}% complete
+                      {aiTypingStats.totalLength > 0 && (
+                        <span className="ml-1 text-gray-500">
+                          ({aiTypingStats.currentLength}/{aiTypingStats.totalLength})
+                        </span>
+                      )}
+                    </div>
+                    <div className="w-20 bg-gray-700 rounded-full h-1">
+                      <div
+                        className="bg-gradient-to-r from-pink-500 to-red-500 h-1 rounded-full transition-all duration-100"
+                        style={{ width: `${aiProgress}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="relative">
+                  <pre className="w-full h-96 bg-gray-900 text-white font-mono text-sm p-4 overflow-auto whitespace-pre-wrap">
+                    {aiCode || (aiTyping ? "// AI is analyzing the problem and starting to code..." : "// Waiting for AI to start...")}
+                  </pre>
+                  {aiTyping && (
+                    <div className="absolute bottom-4 right-4">
+                      <div className="w-1 h-4 bg-pink-400 animate-pulse"></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
