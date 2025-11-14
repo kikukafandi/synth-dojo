@@ -238,7 +238,7 @@ Errors:
 │  - "Failed to process submission"      │
 └────────────────────────────────────────┘
 
-Disconnect Handling:
+Disconnect Handling: 
 Player Disconnects During Queue:
   └─► Remove from waitingPlayers[]
 
