@@ -24,6 +24,8 @@ const safetySettings = [
  * Generate AI code solution for a given problem (STREAMING)
  */
 export async function generateGeminiCodeStream(prompt, starterCode = "", difficulty = 1) {
+    const encoder = new TextEncoder();
+
     try {
         const difficultyPrompts = {
             1: "Write a simple, basic solution.",
@@ -33,114 +35,130 @@ export async function generateGeminiCodeStream(prompt, starterCode = "", difficu
             5: "Write a highly optimized, elegant solution.",
         };
 
-        // ---- PROMPT SISTEM YANG LEBIH TEGAS ----
         const systemPrompt = `You are a silent code generation engine.
-Your ONLY task is to complete the 'starterCode' provided.
-You MUST NOT output anything other than raw code.
-You MUST NOT use markdown (like \`\`\`javascript).
-You MUST NOT include explanations or comments.
-Your output is piped directly into a file. Do not say "Here is the code:".
-You must only output the code that completes the function.
-Difficulty: ${difficultyPrompts[difficulty] || difficultyPrompts[3]}`;
+Output only raw JavaScript with no markdown and no comments.
+${difficultyPrompts[difficulty]}`;
 
-        // ---- PROMPT USER YANG LEBIH TEGAS ----
         const userPrompt = `PROBLEM:
 ${prompt}
 
-STARTER CODE TO COMPLETE:
+STARTER CODE:
 ${starterCode}
 
-YOUR CODE (RAW JAVASCRIPT ONLY):`; // Ini mengarahkan AI untuk langsung menulis kode
+WRITE ONLY THE RAW JAVASCRIPT CODE:
+`;
 
         const result = await ai.models.generateContentStream({
             model: MODEL_NAME,
             systemInstruction: {
                 role: "system",
-                parts: [{ text: systemPrompt }],
+                parts: [{ text: systemPrompt }]
             },
-            contents: [{ role: "user", parts: [{ text: userPrompt }] }],
-            safetySettings: safetySettings,
+            contents: [
+                { role: "user", parts: [{ text: userPrompt }] }
+            ],
+            safetySettings,
         });
 
-        const encoder = new TextEncoder();
-        const readableStream = new ReadableStream({
+        return new ReadableStream({
             async start(controller) {
-                // Perbaikan dari error sebelumnya (menggunakan .stream dan .text())
-                if (!result.stream) {
-                    controller.enqueue(encoder.encode("// Error: Gemini API did not return a stream."));
-                    controller.close();
-                    return;
-                }
                 try {
-                    for await (const chunk of result.stream) {
-                        const text = chunk.text();
-                        if (text) {
-                            controller.enqueue(encoder.encode(text));
+
+                    for await (const chunk of result) {
+                        const text =
+                            chunk?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+
+                        if (text.trim().length > 0) {
+                            controller.enqueue(
+                                encoder.encode(`data: ${JSON.stringify({
+                                    type: "chunk",
+                                    text
+                                })}\n\n`)
+                            );
                         }
                     }
-                } catch (e) {
-                    console.error("Gemini stream chunk error:", e);
-                    controller.enqueue(encoder.encode(`// Gemini stream error: ${e.message}`));
+
+                    controller.enqueue(
+                        encoder.encode(`data: ${JSON.stringify({ type: "end" })}\n\n`)
+                    );
+
+                } catch (error) {
+                    controller.enqueue(
+                        encoder.encode(`data: ${JSON.stringify({
+                            type: "error",
+                            error: error.message
+                        })}\n\n`)
+                    );
                 }
+
                 controller.close();
-            },
+            }
         });
 
-        return readableStream;
-
     } catch (error) {
-        console.error("Gemini API error:", error);
-        const encoder = new TextEncoder();
         return new ReadableStream({
             start(controller) {
-                controller.enqueue(encoder.encode(`// Error generating AI code: ${error.message}`));
+                controller.enqueue(
+                    encoder.encode(`data: ${JSON.stringify({
+                        type: "error",
+                        error: error.message
+                    })}\n\n`)
+                );
                 controller.close();
             }
         });
     }
 }
 
+
 /**
  * Generate a new coding question using Gemini
  */
 export async function generateGeminiQuestion(topic, difficulty) {
     try {
-        // === Perubahan v1: Dapatkan model ===
-        const model = genAI.getGenerativeModel({
-            model: MODEL_NAME,
-            safetySettings: safetySettings,
-        });
-
         const prompt = `
-      Buat sebuah soal coding JavaScript dengan struktur JSON berikut.
-      Topik: "${topic}"
-      Tingkat Kesulitan (1-5): ${difficulty}
+        Buat sebuah soal coding JavaScript dengan struktur JSON berikut.
+        Topik: "${topic}"
+        Tingkat Kesulitan: ${difficulty}
 
-      Anda HARUS membalas HANYA dengan JSON yang valid. Jangan gunakan markdown \`\`\`json.
+        HARUS membalas HANYA JSON valid. Tidak boleh markdown.
+        {
+            "title": "",
+            "prompt": "",
+            "starterCode": "",
+            "testCases": "",
+            "difficulty": ${difficulty},
+            "points": ${difficulty * 10}
+        }
+        `;
 
-      Struktur JSON yang DIHARUSKAN:
-      {
-        "title": "Nama soal (contoh: 'Balikkan String')",
-        "prompt": "Deskripsi lengkap soal yang harus dikerjakan user.",
-        "starterCode": "function namaFungsi(param) {\n  // Kode Anda di sini\n}",
-        "testCases": "[{\"input\": [\"hello\"], \"expected\": \"olleh\"}, {\"input\": [\"world\"], \"expected\": \"dlrow\"}]",
-        "difficulty": ${difficulty},
-        "points": ${difficulty * 10}
-      }
-    `;
+        const result = await retry(() =>
+            ai.models.generateContent({
+                model: MODEL_NAME,
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
+                safetySettings: safetySettings,
+                generationConfig: {
+                    responseMimeType: "application/json",
+                },
+            })
+        );
 
-        // === Perubahan v1: Panggil model.generateContent ===
-        const result = await model.generateContent(prompt);
+        // ---- FIX: Struktur SDK v2 ----
+        const candidate = result.candidates?.[0];
+        if (!candidate) {
+            throw new Error("No candidates found in Gemini result.");
+        }
 
-        // === Perubahan v1: Akses respons ===
-        const response = result.response;
-        let responseText = response.text();
+        const text = candidate.content?.parts?.[0]?.text;
+        if (!text) {
+            throw new Error("No text found in Gemini result.");
+        }
 
-        // Bersihkan jika AI masih menyertakan markdown
-        if (responseText.startsWith("```json")) {
-            responseText = responseText.substring(7, responseText.length - 3).trim();
-        } else if (responseText.startsWith("```")) {
-            responseText = responseText.substring(3, responseText.length - 3).trim();
+        let responseText = text.trim();
+
+        // Hilangkan markdown jika masih ada
+        if (responseText.startsWith("```")) {
+            responseText = responseText.replace(/```json|```/g, "").trim();
         }
 
         return JSON.parse(responseText);
@@ -148,5 +166,31 @@ export async function generateGeminiQuestion(topic, difficulty) {
     } catch (error) {
         console.error("Gemini question generation error:", error);
         throw new Error(`Failed to generate question: ${error.message}`);
+    }
+}
+
+
+
+async function retry(fn, retries = 3, delay = 800) {
+    try {
+        return await fn();
+    } catch (err) {
+        if (retries === 0) throw err;
+
+        // hanya retry jika errornya 503 atau 429
+        const msg = err?.message || "";
+        if (
+            msg.includes("503") ||
+            msg.includes("UNAVAILABLE") ||
+            msg.includes("overloaded") ||
+            msg.includes("429") ||
+            msg.includes("rate")
+        ) {
+            console.warn(`Retrying Gemini... remaining: ${retries}`);
+            await new Promise(res => setTimeout(res, delay));
+            return retry(fn, retries - 1, delay * 1.5);
+        }
+
+        throw err;
     }
 }

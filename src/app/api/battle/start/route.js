@@ -1,9 +1,8 @@
 // src/app/api/battle/start/route.js
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma.js";
-// Impor fungsi generator Gemini
-import { generateGeminiQuestion } from "@/lib/gemini"; 
-import { auth } from "@/lib/auth.js"; 
+import { generateGeminiQuestion } from "@/lib/gemini";
+import { auth } from "@/lib/auth.js";
 
 export async function POST(req) {
   try {
@@ -12,102 +11,94 @@ export async function POST(req) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Mock user untuk testing (sesuai file asli)
     const user = {
       id: session.user.id,
       email: session.user.email,
-      level: session.user.level || 1, // Asumsikan ada properti level
+      level: session.user.level || 1,
     };
 
     const body = await req.json();
-    const { mode, userLevel } = body; // userLevel sekarang didapat dari user di atas
+    const { mode } = body;
 
-    // 1. Dapatkan daftar soal yang sudah dilihat user
-    const seenQuestions = await prisma.userSeenQuestion.findMany({
+    // --- 1. Ambil soal yang sudah dilihat user
+    const seen = await prisma.userSeenQuestion.findMany({
       where: { userId: user.id },
       select: { questionId: true },
     });
-    const seenQuestionIds = seenQuestions.map(sq => sq.questionId);
+    const seenIds = seen.map(s => s.questionId);
 
-    // 2. Cari soal di DB yang BELUM dilihat user
+    // --- 2. Cari soal baru yang belum dilihat
     const availableQuestions = await prisma.question.findMany({
       where: {
         isPublished: true,
-        difficulty: {
-          gte: Math.max(1, user.level - 1),
-          lte: user.level + 1,
-        },
-        id: {
-          notIn: seenQuestionIds, // Filter soal yang sudah dilihat
-        },
+        difficulty: { gte: user.level - 1, lte: user.level + 1 },
+        id: { notIn: seenIds },
       },
     });
 
-    let selectedQuestion;
+    let selectedQuestion = null;
 
     if (availableQuestions.length > 0) {
-      // 3a. Jika ada soal yang belum dilihat, pilih secara acak
-      console.log(`Menemukan ${availableQuestions.length} soal yang belum dikerjakan.`);
+      // 3a — Masih ada soal belum dilihat
       selectedQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+
     } else {
-      // 3b. (IDE ANDA) Jika semua soal sudah dilihat, buat soal baru!
+      // 3b — Semua soal sudah dikerjakan → coba minta AI
       console.log("Semua soal sudah dikerjakan, membuat soal baru dengan AI...");
-      
-      let newQuestionData;
+
+      let newQuestionData = null;
+
       try {
-        // Panggil Gemini untuk membuat soal baru
         newQuestionData = await generateGeminiQuestion("JavaScript Algorithms", user.level);
-      } catch (aiError) {
-        console.error("Gagal membuat soal baru dengan AI:", aiError.message);
-        // Fallback: Jika AI gagal, ambil saja soal acak yang sudah ada
-        const allQuestions = await prisma.question.findMany({
-          where: { isPublished: true },
-          take: 50, // Ambil 50 soal secara acak saja
+      } catch (err) {
+        console.error("Gemini question generation error:", err.message);
+      }
+
+      // --- 4. VALIDASI AI QUESTION ---
+      const isAIValid =
+        newQuestionData &&
+        newQuestionData.title &&
+        newQuestionData.prompt &&
+        newQuestionData.testCases;
+
+      if (isAIValid) {
+        // --- SIMPAN SOAL BARU KE DB ---
+        selectedQuestion = await prisma.question.create({
+          data: {
+            title: newQuestionData.title,
+            prompt: newQuestionData.prompt,
+            starterCode: newQuestionData.starterCode || "",
+            testCases:
+              typeof newQuestionData.testCases === "string"
+                ? newQuestionData.testCases
+                : JSON.stringify(newQuestionData.testCases),
+            difficulty: newQuestionData.difficulty || user.level,
+            points: newQuestionData.points || user.level * 10,
+            isPublished: true,
+          },
         });
-        if (allQuestions.length === 0) {
-          return NextResponse.json({ error: "No questions available in database and AI failed." }, { status: 500 });
-        }
-        selectedQuestion = allQuestions[Math.floor(Math.random() * allQuestions.length)];
-        console.warn(`AI generation failed. Fallback to existing question: ${selectedQuestion.id}`);
-      }
 
-      // 4. (IDE ANDA) Simpan soal baru ke database (HANYA JIKA newQuestionData ADA dan fallback tidak digunakan)
-      if (newQuestionData && !selectedQuestion) {
-        // Lakukan validasi dasar
-        if (!newQuestionData.title || !newQuestionData.prompt || !newQuestionData.testCases) {
-          console.error("Data soal dari AI tidak valid/lengkap:", newQuestionData);
-          // Fallback lagi jika data AI tidak valid
-          const allQuestions = await prisma.question.findMany({ where: { isPublished: true }, take: 50 });
-          if (allQuestions.length === 0) {
-            return NextResponse.json({ error: "AI data invalid and no fallback questions." }, { status: 500 });
-          }
-          selectedQuestion = allQuestions[Math.floor(Math.random() * allQuestions.length)];
-          console.warn(`AI data invalid. Fallback to existing question: ${selectedQuestion.id}`);
-        } else {
-          // Data AI valid, simpan ke database
-          selectedQuestion = await prisma.question.create({
-            data: {
-              title: newQuestionData.title,
-              prompt: newQuestionData.prompt,
-              starterCode: newQuestionData.starterCode || "",
-              testCases: newQuestionData.testCases, // Pastikan ini string JSON
-              difficulty: newQuestionData.difficulty || user.level,
-              points: newQuestionData.points || (user.level * 10),
-              isPublished: true, // Langsung publish untuk digunakan
-            },
-          });
-          console.log(`Soal baru [${selectedQuestion.id}] dibuat dan disimpan.`);
+        console.log(`Soal baru dibuat [${selectedQuestion.id}]`);
+      } else {
+        // --- Fallback jika AI gagal
+        console.warn("AI invalid, fallback ke soal acak.");
+
+        const fallback = await prisma.question.findFirst({
+          where: { isPublished: true },
+        });
+
+        if (!fallback) {
+          return NextResponse.json(
+            { error: "No questions available and AI failed" },
+            { status: 500 }
+          );
         }
+
+        selectedQuestion = fallback;
       }
     }
 
-    // 5. (IDE ANDA) Tandai soal ini sebagai "telah dilihat" oleh user
-    if (!selectedQuestion) {
-         console.error("Fatal: selectedQuestion tidak terdefinisi setelah semua logika.");
-         return NextResponse.json({ error: "Failed to select a question." }, { status: 500 });
-    }
-    
-    // Kita gunakan upsert untuk menghindari error jika user kebetulan dapat soal yang sama (dari fallback)
+    // --- 5. Tandai soal sudah dilihat user
     await prisma.userSeenQuestion.upsert({
       where: {
         userId_questionId: {
@@ -115,16 +106,14 @@ export async function POST(req) {
           questionId: selectedQuestion.id,
         },
       },
-      update: {
-        seenAt: new Date(),
-      },
+      update: { seenAt: new Date() },
       create: {
         userId: user.id,
         questionId: selectedQuestion.id,
       },
     });
 
-    // 6. Buat data match seperti sebelumnya
+    // --- 6. Buat match
     const match = await prisma.match.create({
       data: {
         mode,
@@ -137,15 +126,12 @@ export async function POST(req) {
           ],
         },
         questions: {
-          create: {
-            questionId: selectedQuestion.id,
-            order: 1,
-          },
+          create: { questionId: selectedQuestion.id, order: 1 },
         },
       },
     });
 
-    // 7. Kembalikan soal ke user
+    // --- 7. Kirim response
     return NextResponse.json({
       matchId: match.id,
       question: {
@@ -160,9 +146,6 @@ export async function POST(req) {
 
   } catch (error) {
     console.error("Start battle error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
