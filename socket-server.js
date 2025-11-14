@@ -10,7 +10,7 @@ import { calculateMatchScore, updateHP } from "./src/lib/utils.js"; // Import ut
 const httpServer = createServer();
 const io = new Server(httpServer, {
     cors: {
-        origin: "http://localhost:3000", // Izinkan koneksi dari frontend Next.js Anda
+        origin: process.env.CORS_ORIGIN || "http://localhost:3000", // Izinkan koneksi dari frontend Next.js Anda
         methods: ["GET", "POST"],
     },
 });
@@ -253,6 +253,19 @@ io.on("connection", (socket) => {
         } catch (error) {
             console.error(`Error during submission for user ${userId}:`, error);
             socket.emit("match_error", "Failed to process your submission.");
+        }
+    });
+
+    // 3.5. Cancel Match: User cancels matchmaking
+    socket.on("cancel_match", () => {
+        if (socket.userData) {
+            const index = waitingPlayers.findIndex(
+                (player) => player.userData.userId === socket.userData.userId
+            );
+            if (index !== -1) {
+                waitingPlayers.splice(index, 1);
+                console.log(`User ${socket.userData.userId} cancelled matchmaking.`);
+            }
         }
     });
 
