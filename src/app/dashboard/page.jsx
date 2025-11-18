@@ -197,7 +197,7 @@ export default async function DashboardPage(props) {
                   {[...Array(5)].map((_, i) => (
                     <div
                       key={i}
-                      className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                      className={`w-10 h-3 rounded-full transition-all duration-200 ${
                         i < user.hp
                           ? 'bg-gradient-to-br from-rose-400 to-rose-600 shadow-[0_0_8px_rgba(244,63,94,0.6)]'
                           : 'bg-slate-700/80'
@@ -213,9 +213,13 @@ export default async function DashboardPage(props) {
               <div className="absolute inset-0 bg-gradient-to-b from-emerald-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-2">
-                  <div>
-                    <p className="text-emerald-200/80 text-xs lg:text-sm font-semibold tracking-wide">WIN RATE</p>
-                    <p className="text-4xl lg:text-5xl font-black text-emerald-400 mt-1 tabular-nums">{winRate}%</p>
+                  <div className="flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" className="text-emerald-400 drop-shadow-[0_0_10px_#10B981]"><path fill="currentColor" d="M2.7 17.625q-.3-.3-.288-.712t.288-.688l5.275-5.35Q8.55 10.3 9.4 10.3t1.425.575l2.575 2.6l5.2-5.15H17q-.425 0-.712-.288T16 7.326t.288-.712t.712-.288h4q.425 0 .713.288t.287.712v4q0 .425-.288.713t-.712.287t-.712-.287t-.288-.713v-1.6L14.825 14.9q-.575.575-1.425.575t-1.425-.575L9.4 12.325l-5.3 5.3q-.275.275-.7.275t-.7-.275"/></svg>
+                    <div>
+                      <p className="text-emerald-200/80 text-xs lg:text-sm font-semibold tracking-wide">WIN RATE</p>
+                      <p className="text-4xl lg:text-5xl font-black text-emerald-400 mt-1 tabular-nums">{winRate}%</p>
+                      <p className="text-emerald-300/70 text-xs lg:text-sm">{wins} wins / {totalMatches} matches</p>
+                    </div>
                   </div>
                   <div className="animate-bounce" style={{ animationDelay: '0.2s' }}>
                     <svg
@@ -231,7 +235,6 @@ export default async function DashboardPage(props) {
                     </svg>
                   </div>
                 </div>
-                <p className="text-emerald-300/70 text-xs lg:text-sm">{wins} wins / {totalMatches} matches</p>
               </div>
             </div>
           </div>
