@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/Navbar";
+import PvPArena from "@/components/PvPArena";
 
 export default async function PvPPage() {
   const session = await auth();
@@ -36,34 +37,11 @@ export default async function PvPPage() {
           </div>
         </section>
         <section>
-          <div className="rounded-xl p-12 bg-[linear-gradient(135deg,rgba(0,224,192,0.04),rgba(192,0,144,0.04))] border border-pink-400/20 shadow-[0_0_16px_#FF00B899] text-center">
-            <div className="text-6xl mb-6">🎮</div>
-            <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-cyan-400 to-pink-400 mb-4 leading-tight">
-              PvP Mode
-            </h2>
-            <p className="text-cyan-200 mb-8 max-w-2xl mx-auto">
-              Real-time PvP matchmaking is currently in development. This feature will allow you to compete against other players 
-              in live coding battles with WebSocket support for real-time synchronization.
-            </p>
-            <div className="bg-pink-900/30 border border-pink-400/50 rounded-lg p-6 max-w-2xl mx-auto">
-              <h3 className="text-lg font-bold text-pink-200 mb-3">Coming Soon:</h3>
-              <ul className="text-left text-cyan-100 space-y-2">
-                <li>✓ Real-time matchmaking by skill level</li>
-                <li>✓ Live opponent progress tracking</li>
-                <li>✓ WebSocket-powered synchronization</li>
-                <li>✓ Ranked matches with ELO ratings</li>
-                <li>✓ Tournament modes</li>
-              </ul>
-            </div>
-            <div className="mt-8">
-              <a
-                href="/battle"
-                className="inline-block px-8 py-4 bg-[linear-gradient(to_right,#00E0C0,#C00090)] hover:scale-105 text-white text-lg font-bold rounded-xl transition-all shadow-[0_0_10px_#00E0C099]"
-              >
-                Try AI Battle Instead
-              </a>
-            </div>
-          </div>
+          <PvPArena 
+            userId={user.id}
+            userName={user.name || user.email}
+            userLevel={user.level}
+          />
         </section>
       </main>
     </div>

@@ -1,3 +1,4 @@
+// src/lib/evaluator.js
 // Synth-Dojo Code Evaluator
 // Evaluates user code submissions against test cases
 // Returns: correctness, runtime, style score, and hint tokens
@@ -45,13 +46,17 @@ export async function evaluateCode(
     // Run each test case
     for (const testCase of parsedTestCases) {
       try {
-        // Create safe execution context
+        // ================= PERBAIKAN 1 (Bug `eval()`) =================
+        // Bungkus pemanggilan fungsi dengan ( ) agar 'eval' mengembalikan nilainya.
+        // Tambahkan ';' sebelumnya untuk keamanan.
         const evalCode = `
           ${code}
-          ${functionName}(${testCase.input.map((i) => JSON.stringify(i)).join(', ')})
+          ;(${functionName}(${testCase.input.map((i) => JSON.stringify(i)).join(', ')}))
         `; 
         
         const result = eval(evalCode);
+        // ==============================================================
+
         const passed = JSON.stringify(result) === JSON.stringify(testCase.expected);
         
         if (passed) {
@@ -64,14 +69,18 @@ export async function evaluateCode(
           actual: result,
           passed,
         });
+
+
       } catch (err) {
-        testResults.details.push({
-          input: testCase.input,
-          expected: testCase.expected,
-          actual: null,
-          passed: false,
-        });
+        return {
+          correct: false,
+          runtimeMs: Date.now() - startTime,
+          styleScore: 0,
+          hintTokens: ['syntax_error'],
+          error: err instanceof Error ? err.message : 'Unknown error during execution',
+        };
       }
+      // ==============================================================
     }
 
     const runtimeMs = Date.now() - startTime;
@@ -99,6 +108,7 @@ export async function evaluateCode(
       testResults,
     };
   } catch (error) {
+    // Ini adalah catch terluar
     return {
       correct: false,
       runtimeMs: Date.now() - startTime,
@@ -151,7 +161,7 @@ function calculateStyleScore(code) {
  * Simulates AI opponent evaluation for battle mode
  * Returns a score based on difficulty level
  */
-export function generateAIScore(difficulty) { // <-- Menghapus ': number' dan tipe return
+export function generateAIScore(difficulty) { 
   // AI performance based on difficulty
   const baseRuntime = 100;
   const variance = 50;
