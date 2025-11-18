@@ -80,40 +80,65 @@ export default async function DashboardPage(props) {
       <main className="max-w-6xl mx-auto px-4 sm:px-8 py-10 relative z-10 flex flex-col gap-y-12">
         {/* Welcome Section */}
         <section className="relative border rounded-xl p-6 bg-[linear-gradient(135deg,rgba(0,224,192,0.04),rgba(192,0,144,0.04))] border-cyan-400/20">
-          <div className="absolute left-1/2 top-1/2 w-80 h-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,_rgba(0,255,240,0.10),_transparent_70%)] blur-2xl opacity-50 pointer-events-none" />
-          <div className="text-left relative z-10">
-            <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-[linear-gradient(to_right,#00E0C0,#C00090)] mb-2">
-              Hello {user.name}!
-            </h1>
-            <p className="text-lg md:text-md text-cyan-100/90 font-medium">
-              Ready to continue your coding journey?
-            </p>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center">
+                <span className="text-xl font-bold text-white">⚔️</span>
+              </div>
+              <div>
+                <h1 className="text-4xl md:text-5xl font-black tracking-tight text-balance">
+                  Welcome back, <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Sample User</span>
+                </h1>
+                <p className="text-sm md:text-base text-slate-400 mt-1">Ready to continue your coding journey?</p>
+              </div>
+            </div>
           </div>
         </section>
-        {/* Stats Cards */}
+        
+       {/* Stats Section (Updated Layout) */}
         <section className="flex flex-col gap-y-4">
-          <h2 className="text-lg font-bold text-cyan-300 mb-2 tracking-wide uppercase drop-shadow-[0_0_8px_#00FFF099]">Your Stats</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="relative rounded-xl p-6 bg-[linear-gradient(135deg,rgba(0,224,192,0.04),rgba(192,0,144,0.04))] border border-cyan-400/10 hover:border-cyan-300/40 shadow-[0_0_10px_#00E0C099] transition-all overflow-hidden">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-cyan-200 text-sm">Level</p>
-                  <p className="text-3xl font-bold text-cyan-400">{user.level}</p>
+          <h2 className="text-lg font-bold text-cyan-300 mb-2 tracking-wide uppercase drop-shadow-[0_0_8px_#00FFF099]">
+            Your Stats
+          </h2>
+
+          {/* Game Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+            {/* Level Card */}
+            <div className="relative rounded-lg lg:rounded-xl p-4 lg:p-6 bg-gradient-to-br from-cyan-500/10 via-slate-800/50 to-cyan-500/5 border border-cyan-400/20 hover:border-cyan-300/50 shadow-[0_0_20px_rgba(0,224,192,0.1)] hover:shadow-[0_0_30px_rgba(0,224,192,0.2)] transition-all duration-300 overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-b from-cyan-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-cyan-200/80 text-xs lg:text-sm font-semibold tracking-wide">LEVEL</p>
+                    <p className="text-4xl lg:text-5xl font-black text-cyan-300 mt-1 tabular-nums">{user.level}</p>
+                  </div>
+                  <div className="group/icon animate-pulse">
+                    <svg
+                      width="40"
+                      height="40"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      className="text-cyan-400 drop-shadow-[0_0_10px_#00E0C0]"
+                    >
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                    </svg>
+                  </div>
                 </div>
-                <div className="drop-shadow-[0_0_8px_#00E0C0]">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00FFF0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" className="stroke-cyan-400" /></svg>
-                </div>
-              </div>
-              <div className="mt-4">
-                <div className="flex justify-between text-xs text-gray-400 mb-1">
-                  <span>{user.points} XP</span>
-                  <span>{nextLevelPoints} XP</span>
-                </div>
-                <div className="w-full bg-gray-700 rounded-full h-2">
-                  <div
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full"
-                    style={{ width: `${Math.min(progressPercent, 100)}%` }}
-                  ></div>
+
+                {/* XP Progress Bar */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs text-cyan-300/60">
+                    <span>{user.points} XP</span>
+                    <span>{pointsForNextLevel(user.level)} XP</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-700/60 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-purple-500 via-cyan-400 to-purple-500 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(168,85,247,0.6)]"
+                      style={{ width: `${Math.min((user.points / pointsForNextLevel(user.level)) * 100, 100)}%` }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
