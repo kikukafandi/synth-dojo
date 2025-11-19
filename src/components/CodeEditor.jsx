@@ -15,6 +15,14 @@ export default function CodeEditor({ initialCode = "", onRun, loading = false, o
     }
   };
 
+  const handleChange = (e) => {
+    const newCode = e.target.value;
+    setCode(newCode);
+    if (onChange) {
+      onChange(newCode);
+    }
+  };
+
   return (
     <div className="rounded-xl overflow-hidden bg-[linear-gradient(135deg,rgba(0,224,192,0.07),rgba(192,0,144,0.04))] border border-cyan-400/20 shadow-[0_0_10px_#00E0C099]">
       <div className="bg-gray-800 px-4 py-2 border-b border-cyan-400/20 flex items-center justify-between">

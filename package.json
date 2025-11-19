@@ -2,10 +2,14 @@
   "name": "synth-dojo",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "all": "npm-run-all --parallel dev:next dev:socket",
+    "dev:next": "next dev",
+    "dev:socket": "node socket-server.js",
     "lint": "eslint",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -25,6 +29,8 @@
     "next-auth": "^5.0.0-beta.30",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "zod": "^4.1.12"
   },
   "devDependencies": {
@@ -34,6 +40,7 @@
     "@vitest/ui": "^4.0.8",
     "eslint": "^9",
     "eslint-config-next": "16.0.1",
+    "npm-run-all": "^4.1.5",
     "prisma": "^6.19.0",
     "tailwindcss": "^4",
     "vitest": "^4.0.8"

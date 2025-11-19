@@ -24,7 +24,8 @@ export default function Navbar({ user }) {
     },
     {
       href: "/battle", label: "AI Battle", icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF00B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10h-7l-2 2v7" className="stroke-pink-400" /><circle cx="7" cy="17" r="2" className="stroke-pink-400" /><path d="M17 3l4 4-4 4" className="stroke-pink-400" /></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="#00FFF0" strokeLinecap="round"  strokeLinejoin="round" strokeWidth="2" d="M21 3v5l-11 9l-4 4l-3-3l4-4l9-11zM5 13l6 6m3.32-1.68L18 21l3-3l-3.365-3.365M10 5.5L8 3H3v5l3 2.5" />
+        </svg>
       )
     },
     {
@@ -55,7 +56,7 @@ export default function Navbar({ user }) {
     <nav className="sticky top-0 z-50 bg-[linear-gradient(120deg,rgba(0,255,240,0.08),rgba(255,0,184,0.07))] border-b-2 border-cyan-400/20 shadow-[0_2px_16px_#00FFF033] backdrop-blur-lg">
       <div className="max-w-7xl mx-auto px-24 sm:px-20 lg:px-24">
         <div className="flex items-center justify-between h-16 relative">
-          <div className="flex items-center flex-shrink-0">
+          <div className="flex items-center shrink-0">
             <Link href="/dashboard" className="flex items-center">
               <img src="/synth-dojo.png" alt="Users vs AI logo" width={80} height={80} className="rounded" />
             </Link>

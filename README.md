@@ -9,7 +9,7 @@ A real-time coding learning platform with AI battles, PvP matches, gamification,
 - **Learning Modules**: Structured lessons with embedded practice problems
 - **Practice Mode**: Run code with automated test case evaluation
 - **AI Battle Mode**: Challenge AI opponents matched to your skill level
-- **PvP Mode**: Real-time player vs player coding battles (framework ready)
+- **PvP Mode**: Real-time player vs player coding battles with Socket.IO
 - **Leaderboard**: Global rankings with points, levels, and win rates
 - **Admin Panel**: Full CRUD for modules, lessons, questions, users
 
@@ -24,6 +24,7 @@ A real-time coding learning platform with AI battles, PvP matches, gamification,
 
 - **Frontend**: Next.js 16 (App Router), React 19, Tailwind CSS 4
 - **Backend**: Next.js API Routes
+- **Real-time**: Socket.IO for PvP matchmaking and battles
 - **Database**: PostgreSQL with Prisma ORM
 - **Authentication**: NextAuth (v5 beta) with Prisma adapter
 - **Deployment**: Vercel (frontend) + Neon (database)
@@ -114,11 +115,26 @@ npm run db:seed
 
 ### 6. Run the development server
 
+For the complete experience with PvP mode:
+
 ```bash
+# Run both Next.js and WebSocket servers
+npm run all
+```
+
+Or run them separately:
+
+```bash
+# Terminal 1: Next.js server
 npm run dev
+
+# Terminal 2: WebSocket server (for PvP)
+npm run dev:socket
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+**Note:** PvP mode requires both servers running. Other features work with just `npm run dev`.
 
 ### 7. Login with default accounts
 
@@ -184,7 +200,8 @@ See `prisma/schema.prisma` for full schema details.
 2. **Dashboard**: View your stats, recent matches, and achievements
 3. **Learn**: Browse modules and complete lessons with practice problems
 4. **AI Battle**: Challenge AI opponents to earn points and level up
-5. **Leaderboard**: Check your global ranking and compete with others
+5. **PvP Arena**: Battle against real players in real-time coding matches
+6. **Leaderboard**: Check your global ranking and compete with others
 
 ### For Admins
 
@@ -210,10 +227,46 @@ Evaluation returns:
 - **Runtime**: Execution time in milliseconds
 - **Style Score**: Code quality heuristic (0-100)
 
+## 🎮 PvP Mode
+
+The PvP (Player vs Player) mode allows real-time coding battles between users:
+
+### How It Works
+
+1. **Matchmaking**: Click "Find Match" to enter the matchmaking queue
+2. **Level Matching**: System matches you with players within ±2 levels
+3. **Real-time Battle**: Both players receive the same coding challenge
+4. **Live Progress**: See your opponent's coding progress in real-time
+5. **Winner Determination**: First to submit the best solution wins based on:
+   - **Correctness** (must pass all test cases)
+   - **Runtime** (faster execution = bonus points)
+   - **Code Style** (cleaner code = bonus points)
+
+### Technical Details
+
+- **WebSocket Server**: Runs on port 3001 for real-time communication
+- **Queue System**: FIFO matchmaking with level-based filtering
+- **Auto-generated Questions**: AI-powered coding challenges
+- **Real-time Updates**: Live opponent progress tracking via Socket.IO
+- **Match Recording**: All matches saved to database for history
+
+### Running PvP Mode
+
+```bash
+# Development: Run both servers
+npm run all
+
+# Production: Deploy socket-server.js separately
+# See DEPLOYMENT.md for details
+```
+
 ## 📝 Scripts
 
 ```bash
-npm run dev          # Start development server
+npm run dev          # Start Next.js development server
+npm run all          # Run both Next.js and WebSocket servers
+npm run dev:next     # Next.js server only
+npm run dev:socket   # WebSocket server for PvP mode
 npm run build        # Build for production
 npm run start        # Start production server
 npm run lint         # Run ESLint

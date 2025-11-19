@@ -2,7 +2,7 @@
 // Shows progress, stats, recent matches, and quick actions
 
 import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { redirect } from 'next/navigation';
 import { prisma } from "@/lib/prisma";
 import Navbar from "@/components/Navbar";
 import { calculateLevel, pointsForNextLevel, formatRelativeTime } from "@/lib/utils";
@@ -80,93 +80,167 @@ export default async function DashboardPage(props) {
       <main className="max-w-6xl mx-auto px-4 sm:px-8 py-10 relative z-10 flex flex-col gap-y-12">
         {/* Welcome Section */}
         <section className="relative border rounded-xl p-6 bg-[linear-gradient(135deg,rgba(0,224,192,0.04),rgba(192,0,144,0.04))] border-cyan-400/20">
-          <div className="absolute left-1/2 top-1/2 w-80 h-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,_rgba(0,255,240,0.10),_transparent_70%)] blur-2xl opacity-50 pointer-events-none" />
-          <div className="text-left relative z-10">
-            <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-[linear-gradient(to_right,#00E0C0,#C00090)] mb-2">
-              Hello {user.name}!
-            </h1>
-            <p className="text-lg md:text-md text-cyan-100/90 font-medium">
-              Ready to continue your coding journey?
-            </p>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center">
+                <span className="text-xl font-bold text-white">⚔️</span>
+              </div>
+              <div>
+                <h1 className="text-4xl md:text-5xl font-black tracking-tight text-balance">
+                  Welcome back, <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Sample User</span>
+                </h1>
+                <p className="text-sm md:text-base text-slate-400 mt-1">Ready to continue your coding journey?</p>
+              </div>
+            </div>
           </div>
         </section>
-        {/* Stats Cards */}
+        
+       {/* Stats Section (Updated Layout) */}
         <section className="flex flex-col gap-y-4">
-          <h2 className="text-lg font-bold text-cyan-300 mb-2 tracking-wide uppercase drop-shadow-[0_0_8px_#00FFF099]">Your Stats</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="relative rounded-xl p-6 bg-[linear-gradient(135deg,rgba(0,224,192,0.04),rgba(192,0,144,0.04))] border border-cyan-400/10 hover:border-cyan-300/40 shadow-[0_0_10px_#00E0C099] transition-all overflow-hidden">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-cyan-200 text-sm">Level</p>
-                  <p className="text-3xl font-bold text-cyan-400">{user.level}</p>
+          <h2 className="text-lg font-bold text-cyan-300 mb-2 tracking-wide uppercase drop-shadow-[0_0_8px_#00FFF099]">
+            Your Stats
+          </h2>
+
+          {/* Game Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+            {/* Level Card */}
+            <div className="relative rounded-lg lg:rounded-xl p-4 lg:p-6 bg-gradient-to-br from-cyan-500/10 via-slate-800/50 to-cyan-500/5 border border-cyan-400/20 hover:border-cyan-300/50 shadow-[0_0_20px_rgba(0,224,192,0.1)] hover:shadow-[0_0_30px_rgba(0,224,192,0.2)] transition-all duration-300 overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-b from-cyan-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-cyan-200/80 text-xs lg:text-sm font-semibold tracking-wide">LEVEL</p>
+                    <p className="text-4xl lg:text-5xl font-black text-cyan-300 mt-1 tabular-nums">{user.level}</p>
+                  </div>
+                  <div className="group/icon animate-pulse">
+                    <svg
+                      width="40"
+                      height="40"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      className="text-cyan-400 drop-shadow-[0_0_10px_#00E0C0]"
+                    >
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                    </svg>
+                  </div>
                 </div>
-                <div className="drop-shadow-[0_0_8px_#00E0C0]">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00FFF0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" className="stroke-cyan-400" /></svg>
-                </div>
-              </div>
-              <div className="mt-4">
-                <div className="flex justify-between text-xs text-gray-400 mb-1">
-                  <span>{user.points} XP</span>
-                  <span>{nextLevelPoints} XP</span>
-                </div>
-                <div className="w-full bg-gray-700 rounded-full h-2">
-                  <div
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full"
-                    style={{ width: `${Math.min(progressPercent, 100)}%` }}
-                  ></div>
+
+                {/* XP Progress Bar */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs text-cyan-300/60">
+                    <span>{user.points} XP</span>
+                    <span>{pointsForNextLevel(user.level)} XP</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-700/60 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-purple-500 via-cyan-400 to-purple-500 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(168,85,247,0.6)]"
+                      style={{ width: `${Math.min((user.points / pointsForNextLevel(user.level)) * 100, 100)}%` }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="relative rounded-xl p-6 bg-[linear-gradient(135deg,rgba(255,224,0,0.07),rgba(192,0,144,0.04))] border border-yellow-400/10 hover:border-yellow-300/40 shadow-[0_0_10px_#FFD60099] transition-all overflow-hidden">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-yellow-200 text-sm">Total Points</p>
-                  <p className="text-3xl font-bold text-yellow-400">{user.points}</p>
-                </div>
-                <div className="drop-shadow-[0_0_8px_#FFD600]">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFD600" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" className="stroke-yellow-400" /><path d="M12 8v4l3 3" className="stroke-yellow-400" /></svg>
+            {/* Total Points Card */}
+            <div className="relative rounded-lg lg:rounded-xl p-4 lg:p-6 bg-gradient-to-br from-amber-500/10 via-slate-800/50 to-amber-500/5 border border-amber-400/20 hover:border-amber-300/50 shadow-[0_0_20px_rgba(255,193,7,0.1)] hover:shadow-[0_0_30px_rgba(255,193,7,0.2)] transition-all duration-300 overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-b from-amber-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative z-10">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-amber-200/80 text-xs lg:text-sm font-semibold tracking-wide">TOTAL POINTS</p>
+                    <p className="text-4xl lg:text-5xl font-black text-amber-300 mt-1 tabular-nums">{user.points}</p>
+                  </div>
+                  <div className="animate-bounce">
+                    <svg
+                      width="40"
+                      height="40"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      className="text-amber-400 drop-shadow-[0_0_10px_#FFD600]"
+                    >
+                      <circle cx="12" cy="12" r="9" />
+                      <path d="M12 8v8M8 12h8" strokeLinecap="round" />
+                    </svg>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="relative rounded-xl p-6 bg-[linear-gradient(135deg,rgba(255,0,128,0.07),rgba(0,224,192,0.04))] border border-pink-400/10 hover:border-pink-300/40 shadow-[0_0_10px_#FF008099] transition-all overflow-hidden">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-pink-200 text-sm">HP</p>
-                  <p className="text-3xl font-bold text-red-400">{user.hp}/5</p>
+            {/* HP Card */}
+            <div className="relative rounded-lg lg:rounded-xl p-4 lg:p-6 bg-gradient-to-br from-rose-500/10 via-slate-800/50 to-rose-500/5 border border-rose-400/20 hover:border-rose-300/50 shadow-[0_0_20px_rgba(244,63,94,0.1)] hover:shadow-[0_0_30px_rgba(244,63,94,0.2)] transition-all duration-300 overflow-hidden group cursor-pointer">
+              <div className="absolute inset-0 bg-gradient-to-b from-rose-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-rose-200/80 text-xs lg:text-sm font-semibold tracking-wide">HP</p>
+                    <p className="text-4xl lg:text-5xl font-black text-rose-400 mt-1 tabular-nums">{user.hp}/5</p>
+                  </div>
+                  <div>
+                    <svg
+                      width="40"
+                      height="40"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="text-rose-400 drop-shadow-[0_0_10px_#FF0080]"
+                    >
+                      <path d="M12 21s-6-4.35-8-7.09C2 11.13 2 8.5 4.07 6.43a5.5 5.5 0 017.78 0 5.5 5.5 0 017.78 0C22 8.5 22 11.13 20 13.91 18 16.65 12 21 12 21z" />
+                    </svg>
+                  </div>
                 </div>
-                <div className="drop-shadow-[0_0_8px_#FF0080]">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FF0080" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21s-6-4.35-8-7.09C2 11.13 2 8.5 4.07 6.43a5.5 5.5 0 017.78 0 5.5 5.5 0 017.78 0C22 8.5 22 11.13 20 13.91 18 16.65 12 21 12 21z" className="stroke-pink-400" /></svg>
-                </div>
-              </div>
-              <div className="mt-2 flex gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <div
-                    key={i}
-                    className={`w-4 h-4 rounded-full ${i < user.hp ? "bg-red-500" : "bg-gray-700"
+
+                {/* HP Orbs */}
+                <div className="flex gap-1.5">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className={`w-10 h-3 rounded-full transition-all duration-200 ${
+                        i < user.hp
+                          ? 'bg-gradient-to-br from-rose-400 to-rose-600 shadow-[0_0_8px_rgba(244,63,94,0.6)]'
+                          : 'bg-slate-700/80'
                       }`}
-                  ></div>
-                ))}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="relative rounded-xl p-6 bg-[linear-gradient(135deg,rgba(0,255,240,0.09),rgba(255,0,184,0.07))] border border-cyan-400/10 hover:border-cyan-300/40 shadow-[0_0_10px_#00FFF099] transition-all overflow-hidden">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-cyan-200 text-sm">Win Rate</p>
-                  <p className="text-3xl font-bold text-green-400">{winRate}%</p>
-                </div>
-                <div className="drop-shadow-[0_0_8px_#00FFF0]">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFD600" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="5" className="stroke-yellow-400" /><path d="M8 21v-4a4 4 0 018 0v4" className="stroke-pink-400" /></svg>
+            {/* Win Rate Card */}
+            <div className="relative rounded-lg lg:col-span-3 lg:rounded-xl p-4 lg:p-6 bg-gradient-to-br from-emerald-500/10 via-slate-800/50 to-emerald-500/5 border border-emerald-400/20 hover:border-emerald-300/50 shadow-[0_0_20px_rgba(16,185,129,0.1)] hover:shadow-[0_0_30px_rgba(16,185,129,0.2)] transition-all duration-300 overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-b from-emerald-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" className="text-emerald-400 drop-shadow-[0_0_10px_#10B981]"><path fill="currentColor" d="M2.7 17.625q-.3-.3-.288-.712t.288-.688l5.275-5.35Q8.55 10.3 9.4 10.3t1.425.575l2.575 2.6l5.2-5.15H17q-.425 0-.712-.288T16 7.326t.288-.712t.712-.288h4q.425 0 .713.288t.287.712v4q0 .425-.288.713t-.712.287t-.712-.287t-.288-.713v-1.6L14.825 14.9q-.575.575-1.425.575t-1.425-.575L9.4 12.325l-5.3 5.3q-.275.275-.7.275t-.7-.275"/></svg>
+                    <div>
+                      <p className="text-emerald-200/80 text-xs lg:text-sm font-semibold tracking-wide">WIN RATE</p>
+                      <p className="text-4xl lg:text-5xl font-black text-emerald-400 mt-1 tabular-nums">{winRate}%</p>
+                      <p className="text-emerald-300/70 text-xs lg:text-sm">{wins} wins / {totalMatches} matches</p>
+                    </div>
+                  </div>
+                  <div className="animate-bounce" style={{ animationDelay: '0.2s' }}>
+                    <svg
+                      width="40"
+                      height="40"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      className="text-emerald-400 drop-shadow-[0_0_10px_#10B981]"
+                    >
+                      <path d="M13 10V3L4 14h7v7l9-11h-7z" fill="currentColor" />
+                    </svg>
+                  </div>
                 </div>
               </div>
-              <p className="text-gray-400 text-sm mt-2">
-                {wins} wins / {totalMatches} matches
-              </p>
             </div>
           </div>
         </section>
+
+
         {/* Quick Actions */}
         <section className="flex flex-col gap-y-4">
           <h2 className="text-lg font-bold text-pink-300 mb-2 tracking-wide uppercase drop-shadow-[0_0_8px_#FF00B899]">Quick Actions</h2>
@@ -205,6 +279,7 @@ export default async function DashboardPage(props) {
             </a>
           </div>
         </section>
+
         {/* Recent Activity */}
         <section className="flex flex-col gap-y-4">
           <h2 className="text-lg font-bold text-fuchsia-300 mb-2 tracking-wide uppercase drop-shadow-[0_0_8px_#C0009099]">Recent Activity</h2>
@@ -252,7 +327,7 @@ export default async function DashboardPage(props) {
               <h2 className="text-xl font-bold text-white mb-4">Recent Achievements</h2>
               {user.achievements.length > 0 ? (
                 <div className="space-y-3">
-                  {user.achievements.map(() => (
+                  {user.achievements.map((ua) => (
                     <div
                       key={ua.id}
                       className="bg-gray-900 rounded-lg p-4 flex items-center gap-4"
