@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 async function main() {
 
   console.log('🗑️ Resetting database (truncate all tables)...');
-  
+
   await prisma.$executeRawUnsafe(`
     DO $$ DECLARE
         r RECORD;
@@ -119,6 +119,251 @@ async function main() {
     }
   });
   console.log('✅ Algorithms module created');
+
+  const htmlModule = await prisma.module.create({
+    data: {
+      title: "HTML Fundamentals",
+      description: "Learn the basic structure, tags, semantics, and core building blocks of the web.",
+      order: 3,
+      difficulty: 1,
+      isPublished: true,
+      lessons: {
+        create: [
+          {
+            title: "Introduction to HTML",
+            content: `
+# Introduction to HTML
+
+HTML (HyperText Markup Language) is the standard markup language used to build web pages.  
+HTML consists of **elements** represented by tags.
+
+## Basic Structure
+\`\`\`html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My First Page</title>
+  </head>
+  <body>
+    <h1>Hello World!</h1>
+  </body>
+</html>
+\`\`\`
+          `,
+            codeExample: `<h1>Hello World</h1>`,
+            order: 1,
+            isPublished: true,
+          },
+          {
+            title: "Common HTML Tags",
+            content: `
+# Common HTML Tags
+
+You will use these tags every day:
+
+- Headings: \`<h1> - <h6>\`
+- Paragraph: \`<p>\`
+- Links: \`<a>\`
+- Images: \`<img>\`
+- Lists: \`<ul>\`, \`<ol>\`, \`<li>\`
+
+## Example
+\`\`\`html
+<h1>Title</h1>
+<p>This is a paragraph.</p>
+<a href="https://example.com">Visit</a>
+\`\`\`
+          `,
+            codeExample: `<a href="#">Click me</a>`,
+            order: 2,
+            isPublished: true,
+          },
+          {
+            title: "Forms and Inputs",
+            content: `
+# Forms and Inputs
+
+Forms allow users to input data.
+
+## Example
+\`\`\`html
+<form>
+  <label>Name:</label>
+  <input type="text" />
+  <button type="submit">Submit</button>
+</form>
+\`\`\`
+          `,
+            codeExample: `<input type="text" placeholder="Your name" />`,
+            order: 3,
+            isPublished: true,
+          },
+          {
+            title: "Semantic HTML",
+            content: `
+# Semantic HTML
+
+Semantic elements describe meaning:
+
+- \`<header>\`
+- \`<nav>\`
+- \`<section>\`
+- \`<article>\`
+- \`<footer>\`
+
+## Example
+\`\`\`html
+<article>
+  <h2>Blog Title</h2>
+  <p>Post content...</p>
+</article>
+\`\`\`
+          `,
+            codeExample: `<section><h2>Section Title</h2></section>`,
+            order: 4,
+            isPublished: true,
+          },
+          {
+            title: "Multimedia Elements",
+            content: `
+# Multimedia in HTML
+
+Images, audio, and video can be embedded.
+
+## Example
+\`\`\`html
+<img src="image.jpg" alt="Picture" />
+<video controls src="video.mp4"></video>
+\`\`\`
+          `,
+            codeExample: `<img src="/demo.png" alt="Demo" />`,
+            order: 5,
+            isPublished: true,
+          }
+        ]
+      }
+    }
+  });
+
+  console.log("✅ HTML Fundamentals module created");
+
+  const cssModule = await prisma.module.create({
+    data: {
+      title: "CSS Fundamentals",
+      description: "Master styling, layout, box model, flexbox, and responsive design.",
+      order: 4,
+      difficulty: 2,
+      isPublished: true,
+      lessons: {
+        create: [
+          {
+            title: "Intro to CSS",
+            content: `
+# What is CSS?
+
+CSS is used to style HTML elements.
+
+## Example
+\`\`\`css
+body {
+  background: #f5f5f5;
+}
+\`\`\`
+          `,
+            codeExample: `body { color: black; }`,
+            order: 1,
+            isPublished: true,
+          },
+          {
+            title: "Selectors & Properties",
+            content: `
+# CSS Selectors
+
+Common selectors:
+- Element: \`div\`
+- Class: \`.container\`
+- ID: \`#title\`
+
+## Example
+\`\`\`css
+.container {
+  padding: 20px;
+}
+\`\`\`
+          `,
+            codeExample: `.box { border: 1px solid black; }`,
+            order: 2,
+            isPublished: true,
+          },
+          {
+            title: "Box Model",
+            content: `
+# CSS Box Model
+
+Every element has:
+- margin
+- border
+- padding
+- content
+
+## Example  
+\`\`\`css
+.box {
+  padding: 10px;
+  margin: 20px;
+}
+\`\`\`
+          `,
+            codeExample: `.card { padding: 20px; }`,
+            order: 3,
+            isPublished: true,
+          },
+          {
+            title: "Flexbox",
+            content: `
+# Flexbox Layout
+
+A powerful layout system.
+
+## Example
+\`\`\`css
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+\`\`\`
+          `,
+            codeExample: `display: flex;`,
+            order: 4,
+            isPublished: true,
+          },
+          {
+            title: "Responsive Design",
+            content: `
+# Responsive Design
+
+Use media queries to adapt layout.
+
+## Example
+\`\`\`css
+@media (max-width: 600px) {
+  .container {
+    flex-direction: column;
+  }
+}
+\`\`\`
+          `,
+            codeExample: `@media (max-width: 600px) { body { font-size: 14px } }`,
+            order: 5,
+            isPublished: true,
+          }
+        ]
+      }
+    }
+  });
+
+  console.log("✅ CSS Fundamentals module created");
 
   // Create sample questions
   const lessons = await prisma.lesson.findMany();
