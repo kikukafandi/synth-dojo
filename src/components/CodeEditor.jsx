@@ -6,12 +6,20 @@
 import { useState } from "react";
 
 
-export default function CodeEditor({ initialCode = "", onRun, loading = false }) {
+export default function CodeEditor({ initialCode = "", onRun, onChange, loading = false }) {
   const [code, setCode] = useState(initialCode);
 
   const handleRun = () => {
     if (onRun) {
       onRun(code);
+    }
+  };
+
+  const handleChange = (e) => {
+    const newCode = e.target.value;
+    setCode(newCode);
+    if (onChange) {
+      onChange(newCode);
     }
   };
 
@@ -29,7 +37,7 @@ export default function CodeEditor({ initialCode = "", onRun, loading = false })
       </div>
       <textarea
         value={code}
-        onChange={(e) => setCode(e.target.value)}
+        onChange={handleChange}
         className="w-full h-96 bg-gray-900 text-white font-mono text-sm p-4 focus:outline-none resize-none"
         placeholder="// Write your code here..."
         spellCheck={false}

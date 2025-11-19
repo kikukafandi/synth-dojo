@@ -30,11 +30,25 @@ npm run db:seed
 ```
 
 ### 4. Run Development Server
+
+For the full experience including PvP mode, you need to run both the Next.js server and the WebSocket server:
+
 ```bash
+# Run both servers concurrently
+npm run all
+
+# Or run them separately:
+# Terminal 1: Next.js server
 npm run dev
+
+# Terminal 2: WebSocket server
+npm run dev:socket
 ```
 
-Visit http://localhost:3000
+The Next.js app will be at http://localhost:3000
+The WebSocket server will be at http://localhost:3001
+
+**Note:** PvP mode requires both servers to be running.
 
 ### 5. Default Accounts
 
@@ -91,10 +105,39 @@ Visit http://localhost:3000
    npm run db:seed
    ```
 
+### Deploy WebSocket Server (for PvP Mode)
+
+The WebSocket server (`socket-server.js`) handles real-time PvP matchmaking. For production:
+
+1. **Deploy to a Node.js hosting service** (e.g., Railway, Render, or DigitalOcean)
+   - Deploy the entire repository
+   - Set start command to: `node socket-server.js`
+   - Add environment variables:
+     ```
+     DATABASE_URL=your_neon_connection_string
+     PORT=3001
+     CORS_ORIGIN=https://your-vercel-app.vercel.app
+     ```
+
+2. **Update Frontend Configuration**
+   - Add to Vercel environment variables:
+     ```
+     NEXT_PUBLIC_SOCKET_URL=https://your-websocket-server.com
+     ```
+
+3. **Enable WebSocket Support**
+   - Ensure your hosting provider supports WebSocket connections
+   - Configure CORS to allow your Vercel domain
+
+**Note:** Without the WebSocket server, PvP mode won't work but all other features will function normally.
+
 ## Available Scripts
 
 ```bash
-npm run dev          # Development server
+npm run dev          # Development server (Next.js only)
+npm run all          # Run both Next.js and WebSocket servers
+npm run dev:next     # Next.js development server
+npm run dev:socket   # WebSocket server for PvP mode
 npm run build        # Production build
 npm run start        # Production server
 npm run lint         # Run ESLint
@@ -149,6 +192,7 @@ synth-dojo/
 - ✅ Learning modules with lessons
 - ✅ Practice mode with code execution
 - ✅ AI battles with scoring
+- ✅ **PvP battles with real-time matchmaking**
 - ✅ Global leaderboard
 - ✅ Gamification (points, levels, HP)
 - ✅ Achievements system

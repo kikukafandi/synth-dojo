@@ -98,7 +98,7 @@ describe('Code Evaluator', () => {
       const result = await evaluateCode(code, testCases);
 
       expect(result.correct).toBe(false);
-      expect(result.testResults?.passed).toBeLessThan(result.testResults?.total!);
+      expect(result.testResults?.passed).toBeLessThan(result.testResults?.total);
       expect(result.hintTokens.length).toBeGreaterThan(0);
     });
 

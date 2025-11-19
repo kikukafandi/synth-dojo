@@ -1,9 +1,3 @@
-// src/lib/gemini.js
-// Menggunakan SDK v2 (@google/genai)
-// Model: gemini-2.5-flash
-// Perbaikan: 1. Iterasi 'result' (bukan 'result.stream')
-// Perbaikan: 2. Menggunakan 'chunk.text' (bukan 'chunk.text()')
-
 import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from "@google/genai";
 
 const API_KEY = process.env.GEMINI_API_KEY;
