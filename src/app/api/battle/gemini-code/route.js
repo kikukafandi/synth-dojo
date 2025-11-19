@@ -30,6 +30,7 @@ export async function POST(req) {
         const reader = geminiStream.getReader();
 
         let fullCode = "";
+        let approxProgress = 0;
 
         const sseStream = new ReadableStream({
             async start(controller) {
@@ -41,23 +42,66 @@ export async function POST(req) {
                     const { value, done } = await reader.read();
                     if (done) break;
 
-                    const text = decoder.decode(value);
-                    fullCode += text;
+                    const chunkText = decoder.decode(value);
+                    const lines = chunkText.split('\n');
+                    let ended = false;
 
-                    controller.enqueue(
-                        encoder.encode(`data: ${JSON.stringify({
-                            type: "typing",
-                            code: fullCode
-                        })}\n\n`)
-                    );
+                    for (const line of lines) {
+                        if (!line.startsWith('data: ')) continue;
+                        try {
+                            const evt = JSON.parse(line.slice(6));
+                            if (evt.type === 'chunk') {
+                                const raw = String(evt.text || '').replace(/```(?:javascript)?/gi, '');
+                                // Remove block comments and line comments (avoid URLs like http://)
+                                const piece = raw
+                                  .replace(/\/\*[\s\S]*?\*\//g, '')
+                                  .replace(/(^|[^:])\/\/.*$/gm, '$1');
+                                if (piece) {
+                                    for (const ch of piece) {
+                                        fullCode += ch;
+                                        approxProgress = Math.min(99, approxProgress + 0.2);
+                                        controller.enqueue(
+                                            encoder.encode(`data: ${JSON.stringify({
+                                                type: 'typing',
+                                                code: fullCode,
+                                                progress: Math.round(approxProgress),
+                                                isTyping: true,
+                                                totalLength: 0,
+                                                currentLength: fullCode.length
+                                            })}\n\n`)
+                                        );
+                                        let delay = typingSpeed;
+                                        if (ch === '\n') delay += 100;
+                                        else if (ch === ' ') delay += 20;
+                                        else if (['{','}','(',')',';'].includes(ch)) delay += 30;
+                                        delay += Math.random() * 40 - 20;
+                                        await new Promise(r => setTimeout(r, Math.max(10, delay)));
+                                    }
+                                }
+                            } else if (evt.type === 'end') {
+                                ended = true;
+                                break;
+                            } else if (evt.type === 'error') {
+                                controller.enqueue(
+                                    encoder.encode(`data: ${JSON.stringify({ type: 'error', error: evt.error || 'Gemini stream error', isTyping: false })}\n\n`)
+                                );
+                                controller.close();
+                                return;
+                            }
+                        } catch (_) {
+                            // ignore malformed inner lines
+                        }
+                    }
 
-                    await new Promise(r => setTimeout(r, typingSpeed));
+                    if (ended) break;
                 }
 
                 controller.enqueue(
                     encoder.encode(`data: ${JSON.stringify({
-                        type: "complete",
-                        code: fullCode
+                        type: 'complete',
+                        code: fullCode,
+                        progress: 100,
+                        isTyping: false
                     })}\n\n`)
                 );
 
