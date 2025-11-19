@@ -1,32 +1,27 @@
-// Synth-Dojo Prisma Schema
-// Real-time coding learning platform with AI battles and PvP matches
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-// Auth models for NextAuth
 model Account {
   id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-  
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([provider, providerAccountId])
 }
 
@@ -42,36 +37,34 @@ model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
-  
+
   @@unique([identifier, token])
 }
 
-// Core User model
 model User {
-  id              String    @id @default(cuid())
-  email           String    @unique
-  name            String?
-  emailVerified   DateTime?
-  image           String?
-  hashedPassword  String?
-  role            String    @default("user")
-  points          Int       @default(0)
-  level           Int       @default(1)
-  hp              Int       @default(5)
-  streak          Int       @default(0)
-  lastActiveDate  DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
-  accounts        Account[]
-  sessions        Session[]
-  profile         Profile?
-  matches         Match[]   @relation("userMatches")
-  submissions     MatchSubmission[]
-  achievements    UserAchievement[]
-  progress        UserProgress[]
+  id               String             @id @default(cuid())
+  email            String             @unique
+  name             String?
+  emailVerified    DateTime?
+  image            String?
+  hashedPassword   String?
+  role             String             @default("user")
+  points           Int                @default(0)
+  level            Int                @default(1)
+  hp               Int                @default(5)
+  streak           Int                @default(0)
+  lastActiveDate   DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  accounts         Account[]
   leaderboardEntry LeaderboardEntry?
-  seenQuestions UserSeenQuestion[]
+  matches          Match[]            @relation("userMatches")
+  submissions      MatchSubmission[]
+  profile          Profile?
+  sessions         Session[]
+  achievements     UserAchievement[]
+  progress         UserProgress[]
+  seenQuestions    UserSeenQuestion[]
 }
 
 model Profile {
@@ -82,86 +75,78 @@ model Profile {
   country   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// Learning module models
 model Module {
-  id          String   @id @default(cuid())
+  id          String         @id @default(cuid())
   title       String
   description String?
-  order       Int      @default(0)
-  difficulty  Int      @default(1)
-  isPublished Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  lessons  Lesson[]
-  progress UserProgress[]
+  order       Int            @default(0)
+  difficulty  Int            @default(1)
+  isPublished Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  lessons     Lesson[]
+  progress    UserProgress[]
 }
 
 model Lesson {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   moduleId    String
   title       String
-  content     String   @db.Text
-  codeExample String?  @db.Text
-  order       Int      @default(0)
-  isPublished Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  module    Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  questions Question[]
+  content     String
+  codeExample String?
+  order       Int        @default(0)
+  isPublished Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  module      Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  questions   Question[]
 }
 
 model Question {
-  id           String   @id @default(cuid())
-  lessonId     String?
-  title        String
-  prompt       String   @db.Text
-  starterCode  String?  @db.Text
-  testCases    String   @db.Text
-  difficulty   Int      @default(1)
-  points       Int      @default(10)
-  timeLimit    Int      @default(300)
-  isPublished  Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  
-  lesson       Lesson?  @relation(fields: [lessonId], references: [id], onDelete: SetNull)
-  hints        Hint[]
+  id             String             @id @default(cuid())
+  lessonId       String?
+  title          String
+  prompt         String
+  starterCode    String?
+  testCases      String
+  difficulty     Int                @default(1)
+  points         Int                @default(10)
+  timeLimit      Int                @default(300)
+  isPublished    Boolean            @default(false)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  hints          Hint[]
   matchQuestions MatchQuestion[]
-  seenBy UserSeenQuestion[]
+  lesson         Lesson?            @relation(fields: [lessonId], references: [id])
+  seenBy         UserSeenQuestion[]
 }
 
 model Hint {
   id         String   @id @default(cuid())
   questionId String
-  content    String   @db.Text
+  content    String
   order      Int      @default(0)
   pointCost  Int      @default(5)
   createdAt  DateTime @default(now())
-  
-  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 }
 
-// Match and battle models
 model Match {
-  id          String   @id @default(cuid())
-  mode        String   // "practice", "ai_battle", "pvp"
-  status      String   @default("waiting") // "waiting", "in_progress", "completed", "cancelled"
-  winnerId    String?
-  roomCode    String?  @unique
-  startedAt   DateTime?
-  completedAt DateTime?
-  createdAt   DateTime @default(now())
-  
+  id           String             @id @default(cuid())
+  mode         String
+  status       String             @default("waiting")
+  winnerId     String?
+  roomCode     String?            @unique
+  startedAt    DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime           @default(now())
+  winner       User?              @relation("userMatches", fields: [winnerId], references: [id])
   participants MatchParticipant[]
   questions    MatchQuestion[]
   submissions  MatchSubmission[]
-  winner       User?    @relation("userMatches", fields: [winnerId], references: [id])
 }
 
 model MatchParticipant {
@@ -172,9 +157,8 @@ model MatchParticipant {
   isReady   Boolean  @default(false)
   score     Int      @default(0)
   createdAt DateTime @default(now())
-  
-  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  
+  match     Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
   @@unique([matchId, userId])
 }
 
@@ -183,33 +167,30 @@ model MatchQuestion {
   matchId    String
   questionId String
   order      Int      @default(0)
-  
-  match    Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  question Question @relation(fields: [questionId], references: [id])
-  
+  match      Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id])
+
   @@unique([matchId, questionId])
 }
 
 model MatchSubmission {
-  id          String   @id @default(cuid())
-  matchId     String
-  userId      String
-  questionId  String
-  code        String   @db.Text
-  language    String   @default("javascript")
-  isCorrect   Boolean  @default(false)
-  score       Int      @default(0)
-  runtimeMs   Int      @default(0)
-  styleScore  Int      @default(0)
-  output      String?  @db.Text
-  error       String?  @db.Text
-  createdAt   DateTime @default(now())
-  
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  matchId    String
+  userId     String
+  questionId String
+  code       String
+  language   String   @default("javascript")
+  isCorrect  Boolean  @default(false)
+  score      Int      @default(0)
+  runtimeMs  Int      @default(0)
+  styleScore Int      @default(0)
+  output     String?
+  error      String?
+  createdAt  DateTime @default(now())
+  match      Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// Progress tracking
 model UserProgress {
   id          String   @id @default(cuid())
   userId      String
@@ -218,39 +199,34 @@ model UserProgress {
   progress    Int      @default(0)
   lastVisited DateTime @default(now())
   createdAt   DateTime @default(now())
-  
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  
+  module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, moduleId])
 }
 
-// Gamification
 model Achievement {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String
-  icon        String?
-  points      Int      @default(0)
-  criteria    String   @db.Text
-  createdAt   DateTime @default(now())
-  
+  id               String            @id @default(cuid())
+  name             String            @unique
+  description      String
+  icon             String?
+  points           Int               @default(0)
+  criteria         String
+  createdAt        DateTime          @default(now())
   userAchievements UserAchievement[]
 }
 
 model UserAchievement {
-  id            String   @id @default(cuid())
+  id            String      @id @default(cuid())
   userId        String
   achievementId String
-  unlockedAt    DateTime @default(now())
-  
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
-  
+  unlockedAt    DateTime    @default(now())
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, achievementId])
 }
 
-// Leaderboard (materialized view alternative)
 model LeaderboardEntry {
   id        String   @id @default(cuid())
   userId    String   @unique
@@ -260,18 +236,18 @@ model LeaderboardEntry {
   wins      Int      @default(0)
   losses    Int      @default(0)
   updatedAt DateTime @updatedAt
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([points, level])
 }
-// Tambahkan model ini di akhir schema.prisma
+
 model UserSeenQuestion {
   id         String   @id @default(cuid())
   userId     String
   questionId String
   seenAt     DateTime @default(now())
-
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, questionId])
 }

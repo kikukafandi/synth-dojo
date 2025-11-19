@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { evaluateCode, generateAIScore } from "@/lib/evaluator";
 import { calculateMatchScore, updateHP } from "@/lib/utils";
+import { generateCodeComparisonReview } from "@/lib/gemini";
 
 export async function POST(req) {
   try {
@@ -24,7 +25,7 @@ export async function POST(req) {
     }
 
     const body = await req.json();
-    const { code, questionId, mode, timeSpent } = body;
+    const { code, questionId, mode, timeSpent, aiCode } = body;
 
     // Get question details
     const question = await prisma.question.findUnique({
@@ -40,25 +41,34 @@ export async function POST(req) {
 
     // Evaluate user code
     const userResult = await evaluateCode(code, question.testCases);
-    const userScore = calculateMatchScore(
+    const baseUserScore = calculateMatchScore(
       userResult.correct,
       userResult.runtimeMs,
       userResult.styleScore,
       question.points
     );
 
-    // Generate AI performance
-    const aiResult = generateAIScore(question.difficulty);
-    const aiScore = calculateMatchScore(
+    // Evaluate AI performance: prefer actual AI code if available; fallback to simulation
+    let aiResult;
+    if (aiCode && typeof aiCode === 'string' && aiCode.trim().length > 0) {
+      aiResult = await evaluateCode(aiCode, question.testCases);
+    } else {
+      aiResult = generateAIScore(question.difficulty);
+    }
+    const baseAiScore = calculateMatchScore(
       aiResult.correct,
       aiResult.runtimeMs,
       aiResult.styleScore,
       question.points
     );
 
-    // Determine winner
-    const winner = userScore > aiScore ? "user" : 
-                   userScore < aiScore ? "ai" : null;
+    // Apply small bias toward user
+    let userScore = Math.floor(baseUserScore * 1.1); // +10%
+    let aiScore = baseAiScore;
+    if (userScore === aiScore) userScore += 1; // break ties in favor of user
+
+    // Determine winner with bias
+    const winner = userScore > aiScore ? "user" : "ai";
 
     // Find active match
     const match = await prisma.match.findFirst({
@@ -126,9 +136,22 @@ export async function POST(req) {
       });
     }
 
-    // Update user stats
+    // Update user stats with nuanced loss behavior
+    const timedOut = typeof timeSpent === 'number' && timeSpent >= 300;
+    const severeLoss = (userScore === 0 && !!aiResult.correct) || (aiScore - userScore >= Math.max(20, Math.floor(question.points * 0.5)));
     const newHP = updateHP(user.hp, winner === "user");
-    const pointsToAdd = winner === "user" ? userScore : Math.floor(userScore * 0.3);
+    let pointsToAdd;
+    if (winner === "user") {
+      // bigger reward on win
+      pointsToAdd = Math.max(question.points, Math.floor(userScore * 1.15));
+    } else {
+      // nuanced loss: 0 if timeout and severe loss; else small consolation points
+      if (timedOut && severeLoss) {
+        pointsToAdd = 0;
+      } else {
+        pointsToAdd = Math.max(Math.floor(question.points * 0.1), Math.floor(userScore * 0.3));
+      }
+    }
 
     await prisma.user.update({
       where: { id: user.id },
@@ -158,6 +181,16 @@ export async function POST(req) {
       });
     }
 
+    // Build review using Gemini (best-effort)
+    let review = null;
+    try {
+      review = await generateCodeComparisonReview({
+        prompt: question.prompt,
+        userCode: code,
+        aiCode: aiCode || "",
+      });
+    } catch {}
+
     return NextResponse.json({
       winner,
       userScore,
@@ -170,6 +203,9 @@ export async function POST(req) {
       aiResult,
       pointsEarned: pointsToAdd,
       newHP,
+      timedOut,
+      severeLoss,
+      review,
     });
   } catch (error) {
     console.error("Submit battle error:", error);
