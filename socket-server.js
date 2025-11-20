@@ -1,12 +1,12 @@
 // socket-server.js
-
+import dotenv from "dotenv";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { prisma } from "./src/lib/prisma.js"; // Import Prisma client Anda
 import { evaluateCode } from "./src/lib/evaluator.js"; // Import evaluator
 import { calculateMatchScore, updateHP } from "./src/lib/utils.js"; // Import utils
 // (Pastikan path impor di atas sesuai dengan struktur proyek Anda)
-
+dotenv.config();
 const httpServer = createServer();
 const io = new Server(httpServer, {
     cors: {
