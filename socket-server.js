@@ -10,9 +10,24 @@ import { calculateMatchScore, updateHP } from "./src/lib/utils.js"; // Import ut
 const httpServer = createServer();
 const io = new Server(httpServer, {
     cors: {
-        origin: process.env.CORS_ORIGIN || "http://localhost:3000", // Izinkan koneksi dari frontend Next.js Anda
+        origin: (origin, callback) => {
+            const allowed = (process.env.CORS_ORIGIN || "http://localhost:3000")
+                .split(",")
+                .map(o => o.trim());
+
+            // allow non-browser tools (curl, postman, server-to-server)
+            if (!origin) return callback(null, true);
+
+            if (allowed.includes(origin)) {
+                return callback(null, true);
+            }
+
+            return callback(new Error("Not allowed by CORS: " + origin));
+        },
         methods: ["GET", "POST"],
+        credentials: true,
     },
+
 });
 
 // Daftar pemain yang sedang menunggu match
@@ -168,10 +183,10 @@ io.on("connection", (socket) => {
 
                 const opponentScore = opponentSubmission.score;
                 let winnerId = null;
-                
+
                 // Debug log untuk debugging
                 console.log(`User ${userId} score: ${userScore}, Opponent ${opponentSubmission.userId} score: ${opponentScore}`);
-                
+
                 if (userScore > opponentScore) {
                     winnerId = userId;
                     console.log(`Winner: ${userId} (user)`);
@@ -301,7 +316,7 @@ testDatabaseConnection().then(() => {
     httpServer.listen(PORT, '0.0.0.0', () => {
         console.log(`Synth-Dojo WebSocket server listening on 0.0.0.0:${PORT}`);
     });
-    
+
     httpServer.on('error', (error) => {
         console.error('Server error:', error);
     });
